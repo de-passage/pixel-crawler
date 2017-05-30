@@ -1,6 +1,3 @@
-# Helper functions
-# React class creation
-newClass = (specs) -> React.createFactory React.createClass specs
 
 # From MDN, optimize the resizing event which would otherwise fire too often
 throttle = (type, name, obj) ->
@@ -40,7 +37,6 @@ docHeight = ->
 # End of helper functions
 
 module.exports =
-  newClass: newClass
   docWidth: docWidth
   docHeight: docHeight
   normalizeEvent: normalizeEvent

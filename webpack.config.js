@@ -15,6 +15,14 @@ module.exports = {
     { test: /\.coffee$/, loader: "coffee-loader" },
     { test: /\.haml$/, loader: "haml-loader" }
     ]
-  }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+	  'window.jQuery': 'jquery',
+	  Tether: 'tether'
+    })
+  ]
 };
 

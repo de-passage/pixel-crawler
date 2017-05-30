@@ -1,7 +1,6 @@
-require "./utility.coffee"
-{ gameElements } = require "./models.coffee"
-require "./logic.coffee"
-require "./controllers.coffee"
-{ TLView } =require "./views.coffee"
+ReactDOM = require "react-dom"
+View = require "./views/tlview.coffee"
+TileController = require "./controllers/tilecontroller.coffee"
 
-ReactDOM.render (TLView lookup: gameElements), document.getElementsByTagName("body")[0]
+
+$ -> ReactDOM.render (View tileController: new TileController), $("#react-content")[0]

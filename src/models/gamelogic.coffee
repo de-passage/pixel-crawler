@@ -13,3 +13,5 @@ class GameLogic
 
   newMap: (generator) ->
     { map, startingPosition, entities } = generator()
+
+module.exports = GameLogic
