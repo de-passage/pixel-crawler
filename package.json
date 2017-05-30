@@ -5,7 +5,7 @@
   "main": "",
   "repository": "https://github.com/de-passage/pixel-crawler",
   "scripts": {
-    "test": "mocha --require coffee-script/register --compilers coffee:coffee-script -R spec"
+    "test": "mocha --compilers coffee:coffee-script/register -R spec"
   },
   "author": "Sylvain Leclercq",
   "license": "MIT",
