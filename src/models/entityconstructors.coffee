@@ -5,3 +5,6 @@ Entity = require "./entity.coffee"
 
 Wall = ->
   new Entity(gameElements.wall)
+
+EmptySpace = ->
+  new Entity(gameElements.emptySpace)

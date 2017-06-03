@@ -14,7 +14,7 @@ class Entity
     # Validation for property setting.
     validate = (name, prev, value) ->
       if validators[name]?
-        value = validators[name](prev, value)
+        value = validators[name](prev, value, @property)
       value
 
     # Sets a property according to the validation process

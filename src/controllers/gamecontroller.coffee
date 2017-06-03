@@ -3,7 +3,7 @@
 # Handles general event dispatching and calling the game engine
 # when needed to run the game
 class GameController
-  contructor: ->
+  constructor: ->
     @events = {}
 
   on: (event, action) ->
@@ -14,6 +14,6 @@ class GameController
     obs(args...) for obs in @events[event]
 
   render: ->
-    @emit "render", map
+    @emit "render", @map
 
 module.exports = GameController

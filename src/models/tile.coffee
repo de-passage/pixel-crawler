@@ -3,22 +3,24 @@
 class Tile
   # A tile is constructed from a piece of terrain and a list of entities
   constructor: (ter, es...) ->
-    terrain = ter
-    entities = es
+    @t = ter
+    @entities = es
 
   terrain: (t) ->
-    if t? then terrain = t else terrain
+    if t? then @t = t else @t
 
   addEntity: (en) ->
-    entities.push en
+    @entities.push en
 
   removeEntity: (callback) ->
     i = idx for val, idx in entities when callback(val)
     if i?
-      entities.splice i, 1
-      true
+      @entities.splice(i, 1)[0]
     else
-      false
+      null
+
+  findEntity: (callback) ->
+    return val for val in @entities when callback val
 # end class Tile
 
 

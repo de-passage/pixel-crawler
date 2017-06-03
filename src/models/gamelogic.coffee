@@ -3,15 +3,31 @@
 # ############################
 # Handle the logic of the game. Distributes the actions and plays out the turns
 class GameLogic
+  constructor: (@map) ->
+    @turn = 0
+    @actions = []
 
   # Process all the actions registered for the current turn
   playTurn: ->
     action() for action in @actions
+    @actions = []
 
   # Hands out the handles to the controllable entities
   startTurn: ->
+    game = (x, y) =>
+      pos:
+        x: x
+        y: y
+      map: @map
+      play: (action) ->
+        @actions.push action
+      transfer: (source, dest) ->
+        tile = @map.at(source.x, source.y)
+        en = tile.removeEntity (v) -> v.id == source.id
+        @map.at(dest.x, dest.y).addEntity(en)
 
-  newMap: (generator) ->
-    @map = generator(@player)
+      pass: () ->
+    @map.forEach (tile, x, y) ->
+      el.react "play", game(x, y) for el in tile.entities
 
 module.exports = GameLogic

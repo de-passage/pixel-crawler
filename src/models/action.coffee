@@ -15,8 +15,13 @@
 #                       V                           |
 #        The game controller executes               |
 #     every action, linking to the proper           |
-#   targets while ensuring nobody is cheating.      |
+#                    targets                        |
 #                       |___________________________|
 #
 #
-# Consequently actions have targets, range and effects
+
+actions =
+  move: (source, target, game) ->
+    game.moveTo(source.id, source.pos, target)
+
+module.exports = actions
