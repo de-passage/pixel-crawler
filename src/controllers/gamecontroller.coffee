@@ -5,11 +5,14 @@
 class GameController
   contructor: ->
     @events = {}
+
   on: (event, action) ->
     @events[event] ?= []
     @events[event].push action
+
   emit: (event, args...) ->
     obs(args...) for obs in @events[event]
+
   render: ->
     @emit "render", map
 

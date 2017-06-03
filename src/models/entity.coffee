@@ -10,24 +10,35 @@ class Entity
     reactions = {}
     properties = {}
     validators = {}
-    for data in entityData
-      if data.properties?
-        for k, v of data.properties
-          properties[k] = v
-      if data.reactions?
-        for k, v of data.reactions
-          throw "Reaction #{k} is not a function (is #{v})" if typeof v isnt "function"
-          reactions[k] = v
-      if data.validators?
-        for k, v of data.validators
-          throw "Validator for #{k} must be a function (got #{v})" if typeof v isnt "function"
-          validators[k] = v
 
     # Validation for property setting.
-    validate = (name, value) ->
+    validate = (name, prev, value) ->
       if validators[name]?
-        value = validators[name](properties[name], value)
+        value = validators[name](prev, value)
+      value
+
+    # Sets a property according to the validation process
+    setProperty = (name, value) ->
+      prev = properties[name]
+      #throw new Error "Invalid assignment: property #{name} doesn't exist" unless prev?
+      throw new Error "Invalid assignment: cannot set property #{name} to undefined"  if typeof value == "undefined"
+      properties[name] = validate(name, prev, value)
       
+
+
+    # Actually adds elements to the object
+    for data in entityData
+      if data.validators?
+        for k, v of data.validators
+          throw new Error "Validator for #{k} must be a function (got a #{typeof v})" if typeof v isnt "function"
+          validators[k] = v
+      if data.reactions?
+        for k, v of data.reactions
+          throw new Error "Reaction #{k} is not a function (is #{v})" if typeof v isnt "function"
+          reactions[k] = v
+      if data.properties?
+        for k, v of data.properties
+          setProperty k, v
     
     #
     # The following are actually part of the constructor to provide access to the private members
@@ -35,8 +46,8 @@ class Entity
     # Returns the property if it exists.
     @property = (property) ->
       if (p = properties[property])?
-        return [true, p]
-      return [false]
+        return p
+      throw new Error "Invalid reference: property #{property} is not defined"
 
 
     # Calls for a reaction to the event "message" from source "caller" with arguments "args"
@@ -44,15 +55,10 @@ class Entity
     # with the result of the function.
     # If the reaction is a value, then calls the callback with the value.
     # Returns false and do nothing if the reaction is undefined, returns true otherwise
-    @react = (message, args, callback) ->
+    @react = (message, args...) ->
       f = reactions[message]
-      return [false] unless f?
-      if typeof args == "function" and !callback?
-        callback = args
-        args = []
-      else if not Array.isArray args
-        args = [args]
-      [ true, f.apply null, [{property: @property, react: @react, setProperty: (name, value) => properties[name] = value}, args...] ]
+      throw new Error "Invalid reference: reaction #{message} is not defined" unless f?
+      f.apply null, [{property: @property, react: @react, setProperty: setProperty}, args...]
 
 # end class Entity
 
