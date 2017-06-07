@@ -6,21 +6,22 @@ class Tile
     @t = ter
     @entities = es
 
-  terrain: (t) ->
-    if t? then @t = t else @t
+    @terrain =  (t) ->
+      if t? then @t = t else @t
 
-  addEntity: (en) ->
-    @entities.push en
+    @addEntity = (en) ->
+      @entities.push en
 
-  removeEntity: (callback) ->
-    i = idx for val, idx in entities when callback(val)
-    if i?
-      @entities.splice(i, 1)[0]
-    else
-      null
+    @removeEntity = (callback) ->
+      i = idx for val, idx in entities when callback(val)
+      if i?
+        @entities.splice(i, 1)[0]
+      else
+        null
 
-  findEntity: (callback) ->
-    return val for val in @entities when callback val
+    @findEntity = (callback) ->
+      return val for val in @entities when callback val
+
 # end class Tile
 
-
+module.exports = Tile
