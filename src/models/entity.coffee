@@ -4,9 +4,12 @@
 # predefined accessors called reactions
 #
 class Entity
+  @count = 0
 
   # Create an entity from the pieces of data passed to it
   constructor: (entityData...) ->
+    @id = Entity.count
+    Entity.count++
     reactions = {}
     properties = {}
     validators = {}

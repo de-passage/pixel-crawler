@@ -39,7 +39,6 @@ gameElements=
       defense: (self, attack) ->
         for type, dmg of attack
           self.properties("resistances")
-      play: (self, game) ->
 
     validators:
       health: (prev, next, props) ->

@@ -3,7 +3,7 @@ Entity = require "../src/models/entity.coffee"
 
 describe "Entity", ->
 
-  publicInterface = [ "property", "react" ]
+  publicInterface = [ "property", "react", "id" ]
 
   emptyEntity = null
   entityWithProperties = null
@@ -81,3 +81,8 @@ describe "Entity", ->
     entityWithBoth.react "setText"
     entityWithBoth.property("text").should.equal "something"
 
+  it "should have an unique ID", ->
+    array = [emptyEntity, entityWithReactions, entityWithProperties, entityWithBoth]
+    for i in [0...4]
+      for j in [(i + 1)...4]
+        (array[i].id != array[j].id).should.equal(true)

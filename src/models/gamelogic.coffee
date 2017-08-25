@@ -14,7 +14,7 @@ class GameLogic
 
   # Hands out the handles to the controllable entities
   startTurn: ->
-    game = (x, y) =>
+    game = (x, y, resolve) =>
       pos:
         x: x
         y: y
@@ -26,8 +26,11 @@ class GameLogic
         en = tile.removeEntity (v) -> v.id == source.id
         @map.at(dest.x, dest.y).addEntity(en)
 
-      pass: () ->
+      done: resolve
+
+    array = []
+
     @map.forEach (tile, x, y) ->
-      el.react "play", game(x, y) for el in tile.entities
+      array.push new Promise (resolve) -> el.react "play", game(x, y, resolve) for el in tile.entities
 
 module.exports = GameLogic
