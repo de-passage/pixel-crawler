@@ -8,11 +8,17 @@ class Entity
 
   # Create an entity from the pieces of data passed to it
   constructor: (entityData...) ->
+
     @id = Entity.count
     Entity.count++
+
     reactions = {}
     properties = {}
     validators = {}
+
+    # ###################
+    # Utility functions #
+    # ###################
 
     # Validation for property setting.
     validate = (name, prev, value) ->
@@ -24,10 +30,13 @@ class Entity
     setProperty = (name, value) ->
       prev = properties[name]
       #throw new Error "Invalid assignment: property #{name} doesn't exist" unless prev?
-      throw new Error "Invalid assignment: cannot set property #{name} to undefined"  if typeof value == "undefined"
+      throw new Error "Invalid assignment: forbidden to set a property (#{name}) to undefined"  if typeof value == "undefined"
       properties[name] = validate(name, prev, value)
       
 
+    # ###################
+    # Constructor logic #
+    # ###################
 
     # Actually adds elements to the object
     for data in entityData
@@ -43,12 +52,13 @@ class Entity
         for k, v of data.properties
           setProperty k, v
     
-    #
-    # The following are actually part of the constructor to provide access to the private members
+    # #########################
+    # Entity member functions #
+    # #########################
 
     # Returns the property if it exists.
     @property = (property) ->
-      if (p = properties[property])?
+      if typeof (p = properties[property]) isnt "undefined"
         return p
       throw new Error "Invalid reference: property #{property} is not defined"
 
@@ -62,6 +72,8 @@ class Entity
       f = reactions[message]
       throw new Error "Invalid reference: reaction #{message} is not defined" unless f?
       f.apply null, [{property: @property, react: @react, setProperty: setProperty}, args...]
+  
+  # CONSTRUCTOR #
 
 # end class Entity
 

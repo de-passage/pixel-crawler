@@ -11,6 +11,7 @@ class GameLogic
   playTurn: ->
     action() for action in @actions
     @actions = []
+    @startTurn()
 
   # Hands out the handles to the controllable entities
   startTurn: ->
@@ -32,5 +33,8 @@ class GameLogic
 
     @map.forEach (tile, x, y) ->
       array.push new Promise (resolve) -> el.react "play", game(x, y, resolve) for el in tile.entities
+
+    Promise.all array
+    .then => @playTurn()
 
 module.exports = GameLogic

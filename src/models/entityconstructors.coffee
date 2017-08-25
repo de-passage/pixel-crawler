@@ -2,32 +2,51 @@ gameElements = require "./gameelements.coffee"
 Entity = require "./entity.coffee"
 Message = require "./messages.coffee"
 
-# Various constructors for basic entities
+# ##################
+# Utility functions #
+# ##################
 
-Wall = ->
-  new Entity(gameElements.wall)
+handleUserInput = (input, self, game) ->
+  switch input.type
+    when Message.move
+      # Direction and position adjustment lookup. Extend the arrays to handle e.g. 8 directions
+      dir = [  "up",  "left",  "down", "right"]
+      adj = [[0, -1], [-1, 0], [0, 1], [1, 0]]
+      # Match the direction with the lookup value
+      index = dir.indexOf message.direction
+      # Build an adjusted position from the original position of the player and
+      # the adjustment value in the lookup array
+      newPosition =
+        x: game.pos.x + adj[index][0]
+        y: game.pos.y + adj[index][1]
 
-EmptySpace = ->
-  new Entity(gameElements.emptySpace)
+      # Request the position change
+      game.transfer self, newPosition
+      game.done()
+
+    when Message.attack
+      game.done()
+    when Message.spell
+      game.done()
+    else
+      throw Error("Invalid user input")
 
 
-npc =
-  properties:
-    team: "enemies"
+module.exports =
+  Wall: ->
+    new Entity(gameElements.wall)
 
-Player = (userInput) ->
-  playable =
-    reactions:
-      play: (self, game) ->
-        input = userInput()
-        switch input.type
-          when Message.move
-            direction = input.direction
+  EmptySpace: ->
+    new Entity(gameElements.emptySpace)
 
-    properties:
-      team: "player"
+  Character: (userInput, teamID) ->
+    playable =
+      reactions:
+        play: (self, game) ->
+          handleUserInput userInput(), self, game
+      properties:
+        team: teamID
+    new Entity(gameElements.character, playable)
 
-  new Entity(gameElements.character, playable)
 
-Monster = ->
-  new Entity(gameElements.character, npc)
+
