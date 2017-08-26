@@ -8,6 +8,7 @@ View = newClass
   render: ->
     GameView
       tileController: @props.tileController
+      inputController: @props.inputController
 
 # end class TLView
 

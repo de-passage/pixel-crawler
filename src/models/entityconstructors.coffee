@@ -1,6 +1,6 @@
 gameElements = require "./gameelements.coffee"
 Entity = require "./entity.coffee"
-Message = require "./messages.coffee"
+Message = require "./message.coffee"
 
 # ##################
 # Utility functions #

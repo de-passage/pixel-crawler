@@ -28,8 +28,8 @@ gameElements=
       color: "red"
       fog: false
       actions: ["move"]
-      health: 0
       maxHealth: 0
+      health: 0
       resistances: []
       traits: []
     reactions:
@@ -42,6 +42,7 @@ gameElements=
 
     validators:
       health: (prev, next, props) ->
+        console.log props
         if next > props["maxHealth"]
           props["maxHealth"]
         else if next < 0

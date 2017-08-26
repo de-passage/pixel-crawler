@@ -6,7 +6,9 @@ mapGen = require "./models/mapgenerator.coffee"
 Construct = require "./models/entityconstructors.coffee"
 InputController = require "./controllers/userinput.coffee"
 
-player = Construct.Player(inputController, "player")
+inputController = new InputController
+
+player = Construct.Character(inputController, "player")
 
 map = mapGen()
 

@@ -21,7 +21,7 @@ class Entity
     # ###################
 
     # Validation for property setting.
-    validate = (name, prev, value) ->
+    validate = (name, prev, value) =>
       if validators[name]?
         value = validators[name](prev, value, @property)
       value
@@ -50,7 +50,8 @@ class Entity
           reactions[k] = v
       if data.properties?
         for k, v of data.properties
-          setProperty k, v
+          properties[k] = v
+          #setProperty k, v
     
     # #########################
     # Entity member functions #
