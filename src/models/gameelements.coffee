@@ -42,7 +42,6 @@ gameElements=
 
     validators:
       health: (prev, next, props) ->
-        console.log props
         if next > props["maxHealth"]
           props["maxHealth"]
         else if next < 0

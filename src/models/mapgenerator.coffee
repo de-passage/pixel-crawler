@@ -13,6 +13,7 @@ generateMap = (player) ->
       else
         entities = []
         entities.push player if i == 50 and j == 50
+        console.log "called", i, j
         map.set i,j,new Tile(new EmptySpace, entities)
 
   return map
