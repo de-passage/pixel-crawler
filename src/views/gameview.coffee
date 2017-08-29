@@ -64,6 +64,7 @@ GameView = newClass
       @setState pixelSize: @pixelSize()
 
   render: ->
+    console.log @props.inputController.onKeyPress.bind(@props.inputController)
     if(@state.showTooltip)
       tooltip = Tooltip
         x: @state.tooltip.pos.x
@@ -73,6 +74,7 @@ GameView = newClass
     div
       className: "game-grid"
       onMouseLeave: => @setState tooltip: null
+      onKeyPress: null
       style:
         marginTop: (docHeight() - @displayHeight()) / 2
         width: @displayWidth()

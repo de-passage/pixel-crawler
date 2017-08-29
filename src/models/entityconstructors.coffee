@@ -39,11 +39,11 @@ module.exports =
   EmptySpace: ->
     new Entity(gameElements.emptySpace)
 
-  Character: (userInput, teamID) ->
+  Character: (userInput, teamID, color) ->
     playable =
       reactions:
         play: (self, game) ->
-          handleUserInput userInput(), self, game
+          handleUserInput userInput(game.done), self, game
       properties:
         team: teamID
     new Entity(gameElements.character, playable)

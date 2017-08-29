@@ -20,7 +20,7 @@ class TileController
       else if @lookup? and @lookup[data]?
         @lookup[data]
       else data
-    @tiles[x + y * @width] data
+    @tiles[x + y * @width]? l
 
   # Notifies that the mouse cursor entered the cell at the given coordinates
   mouseEnter: (x, y, event) ->
@@ -33,6 +33,12 @@ class TileController
   # Notifies that the mouse cursor left the cell at the given coordinates
   mouseLeave: (x, y) ->
     @onMouseLeave?()
+
+  # Returns the number of vertical cells
+  height: -> @height
+
+  # Returns the number of horizontal cells
+  width: -> @width
 # end class TileController
 
 module.exports = TileController

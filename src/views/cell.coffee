@@ -4,12 +4,16 @@ newClass = require "./newclass.coffee"
 
 # Component holding a single "pixel"
 Cell = newClass
+
   displayName: "Cell"
+
   getInitialState: ->
     color: ["blue", "red", "green", "purple", "cyan", "orange", "yellow", "yellowgreen"][Math.floor Math.random() * 8]
+
   componentWillMount: ->
     @props.controller.registerTile @props.pos.x, @props.pos.y, (color) =>
       @setState color: color
+
   render: ->
     div
       className: "game-cell"

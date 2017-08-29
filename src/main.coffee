@@ -7,11 +7,25 @@ Construct = require "./models/entityconstructors.coffee"
 InputController = require "./controllers/userinput.coffee"
 
 inputController = new InputController
+tileController = new TileController (tile) ->
+  data = tile.
+  data.property "color"
 
-player = Construct.Character(inputController, "player")
+player = Construct.Character(inputController, "player", "blue")
 
 map = mapGen()
 
+game = new GameController
+
+logic = new GameLogic(map, game)
+
+game.on "NewTurn", ->
+  height = tileController.height()
+  width = tileController.width()
+  for i in [0...height]
+    for j in [0...width]
+      tileController.updateTile(i, j, map.at(i, j))
+      
 
 
-$ -> ReactDOM.render (View tileController: new TileController), $("#react-content")[0]
+$ -> ReactDOM.render (View tileController: tileController, inputController: inputController), $("#react-content")[0]

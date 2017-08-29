@@ -1,9 +1,11 @@
 # ############################
 #           Logic            #
 # ############################
+
+
 # Handle the logic of the game. Distributes the actions and plays out the turns
 class GameLogic
-  constructor: (@map) ->
+  constructor: (@map, @controller) ->
     @turn = 0
     @actions = []
 
@@ -11,10 +13,13 @@ class GameLogic
   playTurn: ->
     action() for action in @actions
     @actions = []
+    @turn++
     @startTurn()
+
 
   # Hands out the handles to the controllable entities
   startTurn: ->
+    @controller.emit "NewTurn"
     game = (x, y, resolve) =>
       pos:
         x: x
@@ -35,6 +40,7 @@ class GameLogic
       array.push new Promise (resolve) -> el.react "play", game(x, y, resolve) for el in tile.entities
 
     Promise.all array
-    .then => @playTurn()
+    .then =>
+      @playTurn()
 
 module.exports = GameLogic

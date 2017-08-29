@@ -7,5 +7,9 @@ module.exports =
 
     awaitMessage: ->
       @waitingForInput = true
-    
+
+    onkeyPress: ->
+      console.log "Here"
+
+
 

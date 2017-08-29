@@ -13,7 +13,7 @@ class Tile
       @entities.push en
 
     @removeEntity = (callback) ->
-      i = idx for val, idx in entities when callback(val)
+      i = idx for val, idx in @entities when callback(val)
       if i?
         @entities.splice(i, 1)[0]
       else
@@ -21,6 +21,7 @@ class Tile
 
     @findEntity = (callback) ->
       return val for val in @entities when callback val
+
 
 # end class Tile
 
