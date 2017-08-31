@@ -38,7 +38,7 @@ class GameLogic
 
     @map.forEach (tile, x, y) ->
       for el in tile.entities
-        array.push new Promise (resolve) -> resolve() #el.react "play", game(x, y, resolve)
+        array.push new Promise (resolve) -> el.react "play", game(x, y, resolve)
 
     Promise.all array
     .then =>

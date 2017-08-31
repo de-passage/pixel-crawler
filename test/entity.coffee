@@ -3,12 +3,13 @@ Entity = require "../src/models/entity.coffee"
 
 describe "Entity", ->
 
-  publicInterface = [ "property", "react", "id" ]
+  publicInterface = [ "property", "react", "id", "hasProperty", "hasReaction" ]
 
   emptyEntity = null
   entityWithProperties = null
   entityWithReactions = null
   entityWithBoth = null
+  entityWithValidators = null
   beforeEach ->
     emptyEntity = new Entity
     entityWithProperties = new Entity
@@ -27,8 +28,16 @@ describe "Entity", ->
       reactions:
         reaction2: -> "react"
         reaction3: -> "another reaction"
-        accessText: (caller, property) -> caller.property(property)
-        setText: (caller, value) -> caller.setProperty("text", "something")
+        accessText: (self, property) -> self.property(property)
+        setText: (self, value) -> self.setProperty("text", "something")
+    entityWithValidators = new Entity
+      properties:
+        value: 0
+      reactions:
+        setValue: (self, value) -> self.setProperty "value", value
+      validators:
+        value: (prev, next) -> if prev > next then prev else next
+
 
   it "should have properties if added", ->
     r1 = entityWithProperties.property "property1"
@@ -86,3 +95,17 @@ describe "Entity", ->
     for i in [0...4]
       for j in [(i + 1)...4]
         (array[i].id != array[j].id).should.equal(true)
+
+  it "should apply validators on setProperty()", ->
+    entityWithValidators.react "setValue", 10
+    entityWithValidators.property("value").should.equal 10
+    entityWithValidators.react "setValue", 5
+    entityWithValidators.property("value").should.equal 10
+
+  it "should check whether a property is defined with hasProperty()", ->
+    entityWithProperties.hasProperty("property1").should.equal true
+    entityWithProperties.hasProperty("property3").should.equal false
+
+  it "should check whether a reaction is defined with hasReaction()", ->
+    entityWithReactions.hasReaction("reaction1").should.equal true
+    entityWithReactions.hasReaction("reaction3").should.equal false

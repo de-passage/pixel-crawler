@@ -29,7 +29,7 @@ class Entity
     # Sets a property according to the validation process
     setProperty = (name, value) ->
       prev = properties[name]
-      #throw new Error "Invalid assignment: property #{name} doesn't exist" unless prev?
+      throw new Error "Invalid assignment: property #{name} doesn't exist" if typeof prev is "undefined"
       throw new Error "Invalid assignment: forbidden to set a property (#{name}) to undefined"  if typeof value == "undefined"
       properties[name] = validate(name, prev, value)
       
@@ -65,14 +65,24 @@ class Entity
 
 
     # Calls for a reaction to the event "message" from source "caller" with arguments "args"
-    # If the reaction is a function, passes the caller and args as arguments and call the callback
-    # with the result of the function.
-    # If the reaction is a value, then calls the callback with the value.
-    # Returns false and do nothing if the reaction is undefined, returns true otherwise
+    # Passes the caller and the argument list to the reaction callback and return the result of the function
     @react = (message, args...) ->
       f = reactions[message]
-      throw new Error "Invalid reference: reaction #{message} is not defined" unless f?
-      f.apply null, [{property: @property, react: @react, setProperty: setProperty}, args...]
+      throw new Error "Invalid reference: reaction #{message} is not defined" unless typeof f is "function"
+      self =
+        property: @property
+        react: @react
+        setProperty: setProperty
+      f.apply null, [self, args...]
+
+    # Checks whether an entity has a given property
+    @hasProperty = (property) ->
+      typeof properties[property] isnt "undefined"
+
+    # Checks whether an entity has a given reaction
+    @hasReaction = (reaction) ->
+      typeof reactions[reaction] is "function"
+
   
   # CONSTRUCTOR #
 
