@@ -21,8 +21,12 @@ describe "GameLogic", ->
     controller.emit.reset()
     map.at.reset()
     map.forEach.reset()
+    ["playTurn", "startTurn"].forEach (e) ->
+      logic[e].restore?()
 
   it "should emit a NewTurn event at the start of a new turn", ->
+    logic.
+    logic.startTurn()
     sinon.assert.calledWith controller.emit, "NewTurn"
 
   it "is pending"
