@@ -25,9 +25,25 @@ describe "GameLogic", ->
       logic[e].restore?()
 
   it "should emit a NewTurn event at the start of a new turn", ->
-    logic.
+    logic.playTurn = sinon.spy()
     logic.startTurn()
     sinon.assert.calledWith controller.emit, "NewTurn"
 
-  it "is pending"
+  it "should call it's own playTurn() method once startTurn() is done", ->
+    logic.playTurn = sinon.spy()
+    # startTurn implicitely returns the promise used to call playTurn, we can then hook
+    # on to that to chain a new promise and return it for mocha to test when it's done
+    logic.startTurn().then ->
+      sinon.assert.calledOnce(logic.playTurn)
+
+  it "should increment the turn count on playTurn()", ->
+    turn = logic.turn
+    logic.startTurn = sinon.spy()
+    logic.playTurn()
+    logic.turn.should.equal turn + 1
+
+  it "should call startTurn() again once playTurn() is done", ->
+    logic.startTurn = sinon.spy()
+    logic.playTurn()
+    sinon.assert.calledOnce(logic.startTurn)
 

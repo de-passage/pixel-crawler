@@ -14,7 +14,7 @@ class GameLogic
     action() for action in @actions
     @actions = []
     @turn++
-    #@startTurn()
+    @startTurn()
 
 
   # Hands out the handles to the controllable entities
