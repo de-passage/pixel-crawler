@@ -1,9 +1,13 @@
 Array2D = require "./array2d.coffee"
 
+
 # Wrapper for an Array2D of Tile, offering
 # a proxy with access to only non-modifying operations
 class Map
+
+
   constructor: (width, height, fill) ->
+    @playableEntities = []
     @height = ->
       height
     @width = ->
@@ -22,7 +26,6 @@ class Map
     # from Tile with the given arguments
     [
       "terrain"
-      "addEntity"
       "topLevelEntity"
       "removeEntity"
       "findEntity"
@@ -44,6 +47,40 @@ class Map
       # with the arguments given by the caller
       @[name] = (x, y, args...) -> func(map.at(x,y), args...)
 
+    @addEntityAt = (x, y, e) ->
+      e.x = x
+      e.y = y
+      map.at(x,y).addEntity e
+
+
+  # Add a new entity to the given coordinates and reference it
+  # in the playableEntities array for quick access
+  addPlayableEntity: (x, y, e) ->
+    @addEntity x, y, e
+    @playableEntities.push e
+
+  # Safely remove a playable entity matching callback from the map and the index
+  removePlayableEntity: (callback) ->
+    idx = i for val, i in @playableEntities when callback(val)
+    if idx?
+      el = @playableEntities.splice(idx, 1)[0]
+      @removeEntity el.x, el.y, (el2)-> el.id == el2.id
+      el
+    else
+      null
+
+  # Move an entity destination coordinates
+  moveEntity: (entity, x, y) ->
+    return if entity.x == x and entity.y == y
+    en = @removeEntityAt entity.x, entity.y, (e) -> e.id == entity.id
+    throw "This entity is not in the right place..." unless en?
+    en.x = x
+    en.y = y
+    @addEntity x, y, en
+
+  # Returns a proxy to the target Map. A proxy is only able to access read-only properties
+  # of Map and sanitize their output (Entity objects) to ensure that only read-only 
+  # operations can be done on them
   proxy: ->
     entitiesAt: (x, y) =>
       @entitiesAt(x, y).map (el) ->

@@ -7,7 +7,7 @@ chai.should()
 map = null
 
 randCoord = ->
-    randInt = (dim) -> Math.floor Math.random(0, map[dim]())
+    randInt = (dim) -> Math.floor(Math.random() * map[dim]())
     [randInt("width"), randInt("height")]
 
 describe "Map", ->
@@ -51,27 +51,67 @@ describe "Map", ->
     t = map.terrainAt coords...
     t.property("name").should.equal newTerrain.property("name")
 
-  it "should return the correct entity list on entitiesAt", ->
-    props = [
-      { properties:
-        name: "monster" },
-      properties:
-        name: "character"
+  describe "#addEntity()", ->
+    values =  [ [[3, 4], "entity"]
+      [[5,4], "entity2"]
     ]
-    coords = randCoord()
-    ret = map.entitiesAt(coords...)
-    Array.isArray(ret).should.equal true
-    ret.length.should.equal 0
+    beforeEach "trying to call", ->
+      for v in values
+        map.addEntityAt v[0]..., new Entity properties: name: v[1]
 
-    for p in props
-      entity = new Entity p
-      map.addEntityAt coords..., entity
+    it "should add the entity to the correct tile", ->
+      for v in values
+        e = map.entitiesAt v[0]...
+        e.length.should.equal 1
+        e[0].property("name").should.equal v[1]
 
-    ret = map.entitiesAt(coords...)
-    Array.isArray(ret).should.equal true
-    ret.length.should.equal 2
-    for v, i in props
-      ret[i].property("name").should.equal v.properties.name
+    it "should add x and y attributes to the entity", ->
+      for v in values
+        [x, y] = v[0]
+        e = map.entitiesAt x, y
+        (typeof e.x).should.not.equal "undefined"
+        e.x.should.equal x
+        (typeof e.y).should.not.equal "undefined"
+        e.y.should.equal y
+
+
+  describe "#entitiesAt()", ->
+    it "should return an empty list if there are no entities there", ->
+      for i in [0...map.width()]
+        for j in [0...map.height()]
+          ret = map.entitiesAt i, j
+          Array.isArray(ret).should.equal true
+          ret.length.should.equal 0
+
+    it "should return the correct entity list if entities are present", ->
+      props = [
+        { properties:
+          name: "monster" },
+        properties:
+          name: "character"
+      ]
+      coords = randCoord()
+      ret = map.entitiesAt(coords...)
+      for p in props
+        entity = new Entity p
+        map.addEntityAt coords..., entity
+
+      ret = map.entitiesAt(coords...)
+      Array.isArray(ret).should.equal true
+      ret.length.should.equal 2
+      for v, i in props
+        ret[i].property("name").should.equal v.properties.name
+
+  describe "moveEntity", ->
+
+    entity = new Entity properties: name: "character"
+
+    beforeEach "trying to call moveEntity()", ->
+      map.addEntityAt 2, 4, entity
+      entity.x.should.equal 2
+      entity.x.should.equal 4
+
+
 
 
   describe "#proxy()", ->
@@ -97,6 +137,13 @@ describe "Map", ->
           proxy[name]().should.equal map[name]()
 
     describe "#entitiesAt()", ->
+      it "should return an empty array if no entities are present", ->
+        for i in [0...map.width()]
+          for j in [0...map.height()]
+            ret = map.entitiesAt i, j
+            Array.isArray(ret).should.equal true
+            ret.length.should.equal 0
+
       it "should return an array of entities for which only the id and property elements are available", ->
         props = [
           { properties:
@@ -106,9 +153,6 @@ describe "Map", ->
         ]
         coords = randCoord()
         ret = proxy.entitiesAt(coords...)
-        Array.isArray(ret).should.equal true
-        ret.length.should.equal 0
-
         for p in props
           entity = new Entity p
           map.addEntityAt coords..., entity

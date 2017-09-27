@@ -19,19 +19,16 @@ class GameLogic
 
   # Hands out the handles to the controllable entities
   startTurn: ->
+
     @controller.emit "NewTurn"
+
     game = (x, y, entity, resolve) =>
       pos:
         x: x
         y: y
       map: @map.proxy()
-      play: (action) ->
-        @actions.push action
-        resolve()
-      moveTo: (dest) ->
-        tile = @map.at(x, y)
-        en = tile.removeEntity (v) -> v.id == entity.id
-        @map.at(dest.x, dest.y).addEntity(en)
+      play: (action, args...) ->
+        @actions.push caller: entity, action: action, args: args
         resolve()
 
     array = []
