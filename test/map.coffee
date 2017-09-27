@@ -6,9 +6,13 @@ chai.should()
 
 describe "Map", ->
 
-  map = new Map 10, 10
+  map = null
 
   beforeEach ->
+    map = new Map 10, 10, (x, y) ->
+      new Entity
+        properties:
+          value: x * y
 
   it "should be constructible with an initialization function", ->
     map = new Map 10, 10, (x, y) ->
@@ -26,6 +30,13 @@ describe "Map", ->
         t.property "y"
         .should.equal j
 
+  ["width", "height"].forEach (dim, idx) ->
+    it "should expose its #{dim} through the #{dim}() method", ->
+      for vals in [ [10, 10], [3, 50], [34, 9]]
+        map = new Map vals..., -> null
+        map[dim]().should.equal vals[idx]
     
 
   it "should return the correct terrain on terrainAt", ->
+    
+    
