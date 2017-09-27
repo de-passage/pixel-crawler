@@ -17,6 +17,10 @@ describe "Tiles", ->
     properties:
       name: "character"
       id: 2
+  ground = new Entity
+    properties:
+      name: "ground"
+      id: 3
 
   it "Should hold a terrain and entities", ->
     t1 = new Tile wall, monster, character
@@ -88,4 +92,9 @@ describe "Tiles", ->
     t.entities.length.should.equal 1
     t.entities[0].property "name"
     .should.equal "character"
+
+  it "should set the terrain on terrain()", ->
+    t = new Tile wall
+    t.terrain ground
+    t.terrain().property("name").should.equal "ground"
 

@@ -20,25 +20,25 @@ class GameLogic
   # Hands out the handles to the controllable entities
   startTurn: ->
     @controller.emit "NewTurn"
-    game = (x, y, resolve) =>
+    game = (x, y, entity, resolve) =>
       pos:
         x: x
         y: y
-      map: @map
+      map: @map.proxy()
       play: (action) ->
         @actions.push action
-      transfer: (source, dest) ->
-        tile = @map.at(source.x, source.y)
-        en = tile.removeEntity (v) -> v.id == source.id
+        resolve()
+      moveTo: (dest) ->
+        tile = @map.at(x, y)
+        en = tile.removeEntity (v) -> v.id == entity.id
         @map.at(dest.x, dest.y).addEntity(en)
-
-      done: resolve
+        resolve()
 
     array = []
 
     @map.forEach (tile, x, y) ->
       for el in tile.entities
-        array.push new Promise (resolve) -> el.react "play", game(x, y, resolve)
+        array.push new Promise (resolve) -> el.react "play", game(x, y, el, resolve)
 
     Promise.all array
     .then =>
