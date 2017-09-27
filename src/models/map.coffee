@@ -16,17 +16,16 @@ class Map
     # implementation is extremely similar so we can just metaprogram
     # them like so:
     [
-      ["terrainAt", (e) -> e.terrain()]
-      ["setTerrainAt", (e, t) -> e.terrain(t)]
-      ["addEntityAt", (e, en) -> e.addEntity(en)]
-      ["entitiesAt", (e) -> e.entities]
-      ["topLevelEntityAt", (e) -> e.topLevelEntity()]
-    ].forEach (f) =>
+      "terrain"
+      "setTerrain"
+      "addEntity"
+      "topLevelEntity"
+    ].forEach (name) =>
       # For each pair name/function
-      [name, func] = f
       # Create on "this" a key whose value is a function taking a pair of coordinates,
       # which retrieves the corresponding tile then apply to it the appropriate function
-      @[name] = (x, y, args...) -> func(map.at(x, y), args...)
+      @[name] = (x, y, args...) -> map.at(x, y)[name](args...)
+    @entitiesAt = (x, y) -> map.at(x,y).entities
 
   proxy: ->
     entities: (x, y) =>
