@@ -24,6 +24,9 @@ class Map
       "terrain"
       "addEntity"
       "topLevelEntity"
+      "removeEntity"
+      "findEntity"
+      "findEntities"
     ].forEach (name) =>
       @[name + "At"] = (x, y, args...) -> map.at(x, y)[name](args...)
 
@@ -42,32 +45,17 @@ class Map
       @[name] = (x, y, args...) -> func(map.at(x,y), args...)
 
   proxy: ->
-    entities: (x, y) =>
+    entitiesAt: (x, y) =>
       @entitiesAt(x, y).map (el) ->
         id: el.id
         property: el.property.bind(el)
 
-    terrain: (x, y) =>
+    terrainAt: (x, y) =>
       ter = @terrainAt(x, y)
       id: ter.id
-      property: ter.property.bind(el)
+      property: ter.property.bind(ter)
 
-###
-  terrainAt: (x, y) ->
-    @map.at(x, y).terrain()
-
-  setTerrainAt: (x, y, t) ->
-    @map.at(x, y).terrain(t)
-    
-  addEntity: (x, y, entity) ->
-    @map.at(x,y).addEntity(entity)
-
-  entitiesAt: (x, y) ->
-    @map.at(x, y).entities
-
-  topLevelEntityAt: (x, y) ->
-    @map.at(x, y).topLevelEntity()
-###
-
+    width: @width.bind @
+    height: @height.bind @
 
 module.exports = Map
