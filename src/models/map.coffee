@@ -1,5 +1,7 @@
 Array2D = require "./array2d.coffee"
 
+# Wrapper for an Array2D of Tile, offering
+# a proxy with access to only non-modifying operations
 class Map
   constructor: (width, height, fill) ->
     @height = ->
@@ -14,18 +16,30 @@ class Map
 
     # The following functions are only proxies to the tiles and their
     # implementation is extremely similar so we can just metaprogram
-    # them like so:
+    # them like so (2 cases):
+
+    # For those, we just add the "At" suffix to the verb and directly call the function
+    # from Tile with the given arguments
     [
       "terrain"
-      "setTerrain"
       "addEntity"
       "topLevelEntity"
     ].forEach (name) =>
-      # For each pair name/function
-      # Create on "this" a key whose value is a function taking a pair of coordinates,
-      # which retrieves the corresponding tile then apply to it the appropriate function
-      @[name] = (x, y, args...) -> map.at(x, y)[name](args...)
-    @entitiesAt = (x, y) -> map.at(x,y).entities
+      @[name + "At"] = (x, y, args...) -> map.at(x, y)[name](args...)
+
+
+    # The following have a different format and need special treatment.
+    [
+      ["setTerrainAt", (e, t) -> e.terrain(t)]
+      ["entitiesAt", (e) -> e.entities]
+      
+    # We go over each name/function pair
+    ].forEach (pair) =>
+      [name, func] = pair
+      # We add a key "name" to the object being constructed which value is a function
+      # retrieving the tile at the given coordinates and applying to it the pair's "func"
+      # with the arguments given by the caller
+      @[name] = (x, y, args...) -> func(map.at(x,y), args...)
 
   proxy: ->
     entities: (x, y) =>
