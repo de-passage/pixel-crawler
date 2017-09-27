@@ -77,7 +77,7 @@ class Map
     throw "This entity is not in the right place..." unless en?
     en.x = x
     en.y = y
-    @addEntity x, y, en
+    @addEntityAt x, y, en
 
   # Returns a proxy to the target Map. A proxy is only able to access read-only properties
   # of Map and sanitize their output (Entity objects) to ensure that only read-only 

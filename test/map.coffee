@@ -106,12 +106,19 @@ describe "Map", ->
   describe "#moveEntity()", ->
 
     entity = new Entity properties: name: "character"
-    startCoords = randCoord()
+    startCoords = null
+    randCoordDifFrom = (s) ->
+      n = randCoord()
+      while (n[0] == s[0]) && (n[1] == s[1])
+        n = randCoord()
+      return n
+
 
     beforeEach "trying to call moveEntity()", ->
+      startCoords = randCoord()
       map.addEntityAt startCoords..., entity
       entity.x.should.equal startCoords[0]
-      entity.x.should.equal startCoords[1]
+      entity.y.should.equal startCoords[1]
 
     it "should remove the entity from it's starting position", ->
       map.moveEntity entity, 0, 0
@@ -120,12 +127,24 @@ describe "Map", ->
       t.length.should.equal 0
 
     it "should add the entity to the destination", ->
-      destCoords = randCoord()
-      while (destCoords[0] == startCoords[0]) && (destCoords[1] == startCoords[1])
-        destCoords = randCoord()
-      map.moveEntity entity, 5, 3
-      t = map.entitiesAt 5, 3
+      destCoords = randCoordDifFrom startCoords
+      map.moveEntity entity, destCoords...
+      t = map.entitiesAt destCoords...
+      Array.isArray(t).should.equal true
+      t.length.should.equal 1
+      t[0].property("name").should.equal "character"
 
+    it "should update the entity's coordinates", ->
+      destCoords = randCoordDifFrom startCoords
+      map.moveEntity entity, destCoords...
+      t = map.entitiesAt destCoords...
+      Array.isArray(t).should.equal true
+      t.length.should.equal 1
+      t[0].x.should.equal destCoords[0]
+      t[0].y.should.equal destCoords[1]
+
+  describe "#playableEntities", ->
+    map = new Map 10, 10, -> null
 
   describe "#proxy()", ->
     authorizedKeys = [
