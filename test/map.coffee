@@ -102,16 +102,29 @@ describe "Map", ->
       for v, i in props
         ret[i].property("name").should.equal v.properties.name
 
-  describe "moveEntity", ->
+
+  describe "#moveEntity()", ->
 
     entity = new Entity properties: name: "character"
+    startCoords = randCoord()
 
     beforeEach "trying to call moveEntity()", ->
-      map.addEntityAt 2, 4, entity
-      entity.x.should.equal 2
-      entity.x.should.equal 4
+      map.addEntityAt startCoords..., entity
+      entity.x.should.equal startCoords[0]
+      entity.x.should.equal startCoords[1]
 
+    it "should remove the entity from it's starting position", ->
+      map.moveEntity entity, 0, 0
+      t = map.entitiesAt startCoords...
+      Array.isArray(t).should.equal true
+      t.length.should.equal 0
 
+    it "should add the entity to the destination", ->
+      destCoords = randCoord()
+      while (destCoords[0] == startCoords[0]) && (destCoords[1] == startCoords[1])
+        destCoords = randCoord()
+      map.moveEntity entity, 5, 3
+      t = map.entitiesAt 5, 3
 
 
   describe "#proxy()", ->
