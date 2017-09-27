@@ -68,7 +68,7 @@ describe "Map", ->
     it "should add x and y attributes to the entity", ->
       for v in values
         [x, y] = v[0]
-        e = map.entitiesAt x, y
+        e = map.entitiesAt(x, y)[0]
         (typeof e.x).should.not.equal "undefined"
         e.x.should.equal x
         (typeof e.y).should.not.equal "undefined"

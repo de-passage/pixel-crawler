@@ -47,6 +47,7 @@ class Map
       # with the arguments given by the caller
       @[name] = (x, y, args...) -> func(map.at(x,y), args...)
 
+    # Add entity to the map and save its coordinates
     @addEntityAt = (x, y, e) ->
       e.x = x
       e.y = y
