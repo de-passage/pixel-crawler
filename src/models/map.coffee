@@ -56,8 +56,8 @@ class Map
 
   # Add a new entity to the given coordinates and reference it
   # in the playableEntities array for quick access
-  addPlayableEntity: (x, y, e) ->
-    @addEntity x, y, e
+  addPlayableEntityAt: (x, y, e) ->
+    @addEntityAt x, y, e
     @playableEntities.push e
 
   # Safely remove a playable entity matching callback from the map and the index
@@ -65,7 +65,7 @@ class Map
     idx = i for val, i in @playableEntities when callback(val)
     if idx?
       el = @playableEntities.splice(idx, 1)[0]
-      @removeEntity el.x, el.y, (el2)-> el.id == el2.id
+      @removeEntityAt el.x, el.y, (el2)-> el.id == el2.id
       el
     else
       null

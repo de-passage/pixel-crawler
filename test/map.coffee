@@ -144,7 +144,37 @@ describe "Map", ->
       t[0].y.should.equal destCoords[1]
 
   describe "#playableEntities", ->
-    map = new Map 10, 10, -> null
+    entity = new Entity properties: name: "character"
+
+    it "should be directly accessible", ->
+      Array.isArray(map.playableEntities).should.equal true
+
+    it "should obtain new elements on addPlayableEntityAt()", ->
+      map.playableEntities.length.should.equal 0
+      coords = randCoord()
+      map.addPlayableEntityAt coords..., entity
+      map.playableEntities.length.should.equal 1
+      map.playableEntities[0].property("name").should.equal "character"
+
+    it "should update the map tiles on addPlayableEntityAt()", ->
+      coords = randCoord()
+      map.entitiesAt(coords...).length.should.equal 0
+      map.addPlayableEntityAt coords..., entity
+      map.entitiesAt(coords...).length.should.equal 1
+      map.entitiesAt(coords...)[0].property("name").should.equal "character"
+
+    it "should lose elements on removePlayableEntity()", ->
+      coords = randCoord()
+      map.addPlayableEntityAt coords..., entity
+      map.removePlayableEntity (e) -> e.id == entity.id
+      map.playableEntities.length.should.equal 0
+
+    it "should update the map tiles on removePlayableEntity()", ->
+      coords = randCoord()
+      map.addPlayableEntityAt coords..., entity
+      map.removePlayableEntity (e) -> e.id == entity.id
+      map.entitiesAt(coords...).length.should.equal 0
+
 
   describe "#proxy()", ->
     authorizedKeys = [
