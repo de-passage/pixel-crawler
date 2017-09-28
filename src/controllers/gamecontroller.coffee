@@ -11,9 +11,6 @@ class GameController
     @events[event].push action
 
   emit: (event, args...) ->
-    obs(args...) for obs in @events[event]
-
-  render: ->
-    @emit "render", @map
+    obs(args...) for obs of @events[event]
 
 module.exports = GameController

@@ -1,26 +1,24 @@
 GameLogic = require "../src/models/gamelogic.coffee"
+Map = require "../src/models/map.coffee"
+Tile = require "../src/models/tile.coffee"
+Entity = require "../src/models/entity.coffee"
+GameController = require "../src/controllers/gamecontroller.coffee"
 chai = require "chai"
 sinon = require "sinon"
 chai.should()
 
-controller =
-  emit: sinon.spy()
-
-map =
-  at: sinon.spy()
-  forEach: sinon.spy()
-
 describe "GameLogic", ->
 
   logic = null
+  map = new Map 10, 10, -> new Tile new Entity
+  controller = new GameController
+  sinon.spy(controller, "emit")
 
   beforeEach ->
     logic = new GameLogic map, controller
 
   afterEach ->
-    controller.emit.reset()
-    map.at.reset()
-    map.forEach.reset()
+    controller.emit.reset?()
     ["playTurn", "startTurn"].forEach (e) ->
       logic[e].restore?()
 
