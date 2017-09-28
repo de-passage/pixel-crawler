@@ -35,6 +35,7 @@ gameElements=
       resistances: []
       traits: []
       collision: true
+      movement: 1
 
     validators:
       health: (prev, next, props) ->
@@ -56,7 +57,7 @@ gameElements=
 
   item:
     properties:
-      seethrough: false
+      seethrough: true
       fog: true
       color: "yellow"
       collision: false

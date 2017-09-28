@@ -3,10 +3,10 @@
 #
 # The flow of the game is as follow: 
 #
-#   The game controller decides who gets to act <----
+#   The game logic controller decides who gets to act <----
 #                       |                           |
 #                       V                           |
-#        The game controller hands out the          |
+#        The game logic hands out the          |
 #    action registration forms (callbacks)          |
 #                       |                           |
 #                       V                           |
@@ -38,6 +38,10 @@ actions =
       map.moveEntity this, x, y
     else
       throw Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
+
+  attack: (map, target) ->
+
+  spell: (map, x, y, target) ->
 
 
 module.exports = actions

@@ -6,7 +6,7 @@ Message = require "./message.coffee"
 # Utility functions #
 # ##################
 
-handleUserInput = (input, self, game) ->
+handleUserInput = (input, game) ->
   switch input.type
     when Message.move
       # Direction and position adjustment lookup. Extend the arrays to handle e.g. 8 directions
@@ -16,16 +16,14 @@ handleUserInput = (input, self, game) ->
       index = dir.indexOf message.direction
       # Build an adjusted position from the original position of the player and
       # the adjustment value in the lookup array
-      newPosition =
-        x: game.pos.x + adj[index][0]
-        y: game.pos.y + adj[index][1]
+      nX= game.pos.x + adj[index][0]
+      nY= game.pos.y + adj[index][1]
 
       # Request the position change
-      game.transfer self, newPosition
-      game.done()
+      game.move nX, nY
 
     when Message.attack
-      game.done()
+      game.play("attack", x, y, id)
     when Message.spell
       game.done()
     else
@@ -39,11 +37,11 @@ module.exports =
   EmptySpace: ->
     new Entity(gameElements.emptySpace)
 
-  Character: (userInput, teamID, color) ->
+  PlayerCharacter: (userInput, teamID, color) ->
     playable =
       reactions:
-        play: (self, game) ->
-          handleUserInput userInput(game.done), self, game
+        play: (game) ->
+          handleUserInput.call this, userInput(game), game
       properties:
         team: teamID
     new Entity(gameElements.character, playable)

@@ -34,12 +34,14 @@ class GameLogic
     @controller.emit "NewTurn"
 
     game = (entity, resolve) =>
-      map: @map.proxy()
-      play: (action, args...) ->
-        @actions.push caller: entity, action: action, args: args
+      play = (action, args...) ->
+        @actions.push caller: entity, action: action, args: args, map: @map
         resolve()
+      map: @map.proxy()
+      play: play
       move: (x, y) ->
-        @actions.push caller: entity, action: "move", args: [@map, x, y]
+        play "move", x, y
+      pass: resolve
 
     array = []
 
@@ -57,7 +59,7 @@ class GameLogic
     { caller, action, args } = arg
     f = @availableActions[action]
     if f? and typeof f is "function"
-      f.apply(caller, args)
+      f.call(caller, map, args...)
       true
     else
       false
