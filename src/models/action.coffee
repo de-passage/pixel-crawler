@@ -21,7 +21,23 @@
 #
 
 actions =
-  move: (source, target, game) ->
-    game.moveTo(source.id, source.pos, target)
+  # This is wrong, doesn't check for obstacles. Should use A* and check number of steps.
+  move: (map, x, y) ->
+    mvSpeed = null
+    try
+      mvSpeed = this.property("movement")
+    catch
+      throw Error "This entity (ID: #{@id}, at (#{@x}, #{@y})) cannot move"
+    hDist = x - @x
+    vDist = y - @y
+    sHD = hDist * hDist
+    sVD = vDist * vDist
+    sMV = mvSpeed * mvSpeed
+    inRange = sMV >= sHD + sVD
+    if inRange
+      map.moveEntity this, x, y
+    else
+      throw Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
+
 
 module.exports = actions

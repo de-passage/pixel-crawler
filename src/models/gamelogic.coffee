@@ -38,6 +38,8 @@ class GameLogic
       play: (action, args...) ->
         @actions.push caller: entity, action: action, args: args
         resolve()
+      move: (x, y) ->
+        @actions.push caller: entity, action: "move", args: [@map, x, y]
 
     array = []
 
@@ -55,7 +57,7 @@ class GameLogic
     { caller, action, args } = arg
     f = @availableActions[action]
     if f? and typeof f is "function"
-      f(caller, args...)
+      f.apply(caller, args)
       true
     else
       false

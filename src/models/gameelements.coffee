@@ -3,6 +3,11 @@
 # fog: Indicates whether or not the element is visible throught the fog of war
 # color: color of the tile on screen
 
+# Helper function to determine whether or not a given entity has a given trait or not
+
+hasTrait = (target, trait) ->
+  target.hasProperty("traits") and trait in target.property("traits")
+
 gameElements=
 
   wall:
@@ -10,17 +15,14 @@ gameElements=
       seethrough: false
       color: "grey"
       fog: true
-    reactions:
-      collision: -> false
-
+      collision: (target) -> !hasTrait(target, "incorporeal")
 
   emptySpace:
     properties:
       seethrough: true
       color: "white"
       fog: "true"
-    reactions:
-      collision: -> true
+      collision: false
 
   character:
     properties:
@@ -32,13 +34,7 @@ gameElements=
       health: 0
       resistances: []
       traits: []
-    reactions:
-      collision: (self, source, map) ->
-        self.react "defense", source.react "attack"
-      attack: (self, source) -> {}
-      defense: (self, attack) ->
-        for type, dmg of attack
-          self.properties("resistances")
+      collision: true
 
     validators:
       health: (prev, next, props) ->
@@ -63,8 +59,7 @@ gameElements=
       seethrough: false
       fog: true
       color: "yellow"
-    reactions:
-      collision: -> true
+      collision: false
 
 # end gameElements
 

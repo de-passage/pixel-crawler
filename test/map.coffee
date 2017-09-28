@@ -121,7 +121,7 @@ describe "Map", ->
       entity.y.should.equal startCoords[1]
 
     it "should remove the entity from it's starting position", ->
-      map.moveEntity entity, 0, 0
+      map.moveEntity entity, randCoordDifFrom(startCoords)...
       t = map.entitiesAt startCoords...
       Array.isArray(t).should.equal true
       t.length.should.equal 0

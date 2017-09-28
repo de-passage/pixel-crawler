@@ -3,13 +3,14 @@ Entity = require "../src/models/entity.coffee"
 
 describe "Entity", ->
 
-  publicInterface = [ "property", "react", "id", "hasProperty", "hasReaction" ]
+  publicInterface = [ "property", "react", "id", "hasProperty", "hasReaction", "protected" ]
 
   emptyEntity = null
   entityWithProperties = null
   entityWithReactions = null
   entityWithBoth = null
   entityWithValidators = null
+  entityWithComputedProperties = null
   beforeEach ->
     emptyEntity = new Entity
     entityWithProperties = new Entity
@@ -28,15 +29,23 @@ describe "Entity", ->
       reactions:
         reaction2: -> "react"
         reaction3: -> "another reaction"
-        accessText: (self, property) -> self.property(property)
-        setText: (self, value) -> self.setProperty("text", "something")
+        accessText: (property) -> @property(property)
+        setText: (value) -> @setProperty("text", "something")
     entityWithValidators = new Entity
       properties:
         value: 0
       reactions:
-        setValue: (self, value) -> self.setProperty "value", value
+        setValue: (value) -> @setProperty "value", value
       validators:
         value: (prev, next) -> if prev > next then prev else next
+    entityWithComputedProperties = new Entity
+      properties:
+        value1: 42
+        value2: 24
+        sum: -> @property("value1") +  @property("value2")
+      reactions:
+        invalidReaction: ->
+          @setProperty "sum", 0
 
 
   it "should have properties if added", ->
@@ -109,3 +118,32 @@ describe "Entity", ->
   it "should check whether a reaction is defined with hasReaction()", ->
     entityWithReactions.hasReaction("reaction1").should.equal true
     entityWithReactions.hasReaction("reaction3").should.equal false
+
+  it "should allow functions as properties (computed properties)", ->
+    entityWithComputedProperties.property("sum").should.equal 42 + 24
+
+  it "should throw if setProperty is called on a computed property", ->
+    ( -> entityWithComputedProperties.react("invalidReaction") ).should.throw Error
+
+  it "should throw if a validator is given for a computed property", ->
+    ( -> new Entity properties: { computed: -> }, validators: { computed: -> } ).should.throw Error
+    ( -> new Entity validators: { computed: -> }, properties: { computed: -> }).should.throw Error
+
+  describe "#protected", ->
+    proxy = null
+    beforeEach ->
+      proxy = entityWithBoth.protected
+
+    it "should expose its parent's #property()", ->
+      proxy.property("text").should.equal "empty"
+
+    [["Property", "property2", "property1"], ["Reaction", "reaction2", "reaction1"]].forEach (pair) ->
+      it "should expose its parent's #has#{pair[0]}()", ->
+        proxy["has#{pair[0]}"](pair[1]).should.equal true
+        proxy["has#{pair[0]}"](pair[2]).should.equal false
+
+    it "should hide its parent's #react()", ->
+      (typeof proxy.react).should.equal "undefined"
+
+
+
