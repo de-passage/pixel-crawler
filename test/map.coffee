@@ -64,6 +64,15 @@ describe "Map", ->
         e = map.entitiesAt v[0]...
         e.length.should.equal 1
         e[0].property("name").should.equal v[1]
+      coords = [values[0][0], values[1][0]]
+      console.log coords
+      count = 0
+      for i in [0...map.width()]
+        for j in [0...map.height()]
+          if !(i == coords[0][0] and j == coords[0][1]) and !(i == coords[1][0] and j == coords[0][1])
+            map.entitiesAt(i,j).length.should.equal 0
+            count++
+      count.should.equal map.height() * map.width() - 2
 
     it "should add x and y attributes to the entity", ->
       for v in values

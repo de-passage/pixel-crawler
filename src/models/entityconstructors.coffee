@@ -1,6 +1,7 @@
 gameElements = require "./gameelements.coffee"
 Entity = require "./entity.coffee"
 Message = require "./message.coffee"
+Tile = require "./tile.coffee"
 
 # ##################
 # Utility functions #
@@ -26,24 +27,28 @@ handleUserInput = (input, game) ->
       game.play("attack", x, y, id)
     when Message.spell
       game.done()
+    when Message.pass
+      game.pass()
     else
       throw Error("Invalid user input")
 
 
 module.exports =
   Wall: ->
-    new Entity(gameElements.wall)
+    new Tile new Entity(gameElements.wall)
 
   EmptySpace: ->
-    new Entity(gameElements.emptySpace)
+    new Tile new Entity(gameElements.emptySpace)
 
-  PlayerCharacter: (userInput, teamID, color) ->
+  PlayableCharacter: (userInput, teamID, color) ->
     playable =
       reactions:
         play: (game) ->
           handleUserInput.call this, userInput(game), game
       properties:
         team: teamID
+    if color?
+      playable.properties.color = color
     new Entity(gameElements.character, playable)
 
 

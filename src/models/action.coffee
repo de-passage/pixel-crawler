@@ -28,6 +28,9 @@ actions =
       mvSpeed = this.property("movement")
     catch
       throw Error "This entity (ID: #{@id}, at (#{@x}, #{@y})) cannot move"
+    try
+    catch
+      throw Error "This entity cannot move through (#{x}, #{y})"
     hDist = x - @x
     vDist = y - @y
     sHD = hDist * hDist

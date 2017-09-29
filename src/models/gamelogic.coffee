@@ -19,17 +19,11 @@ class GameLogic
     @pause = false
     @startTurn()
 
-  # Process all the actions registered for the current turn
-  playTurn: ->
-    @resolve(action) for action in @actions
-    @actions = []
-    @turn++
-    @startTurn()
-
 
   # Hands out the game handle to the controllable entities and wait for
   # them to return an action to proceed with the game
-  startTurn: ->
+  # The 'callback' parameter is the function to play after the turn is complete
+  startTurn: (callback) ->
     return if @pause
     @controller.emit "NewTurn"
 
@@ -50,7 +44,17 @@ class GameLogic
 
     Promise.all array
     .then =>
-      @playTurn()
+      callback = @startTurn if typeof callback is "undefined"
+      @playTurn(callback)
+
+  # Process all the actions registered for the current turn
+  # The 'callback' parameter is the function to run after the turn is complete
+  playTurn: (callback) ->
+    for action in @actions
+      @resolve(action)
+    @actions = []
+    @turn++
+    callback?()
 
 
   # Tries to resolve an action.

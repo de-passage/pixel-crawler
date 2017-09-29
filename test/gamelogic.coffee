@@ -40,8 +40,8 @@ describe "GameLogic", ->
     logic.playTurn()
     logic.turn.should.equal turn + 1
 
-  it "should call startTurn() again once playTurn() is done", ->
-    logic.startTurn = sinon.spy()
-    logic.playTurn()
-    sinon.assert.calledOnce(logic.startTurn)
+  it "should call its callback again once playTurn() is done", ->
+    callback = sinon.spy()
+    logic.playTurn(callback)
+    sinon.assert.calledOnce(callback)
 
