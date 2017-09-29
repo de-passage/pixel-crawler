@@ -44,7 +44,6 @@ class GameLogic
 
     Promise.all array
     .then =>
-      callback = @startTurn if typeof callback is "undefined"
       @playTurn(callback)
 
   # Process all the actions registered for the current turn

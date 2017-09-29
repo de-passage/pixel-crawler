@@ -31,6 +31,9 @@ class Tile
     else
       @terrain()
 
+  clone: ->
+    new Tile @t
+
 
 # end class Tile
 

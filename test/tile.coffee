@@ -98,3 +98,27 @@ describe "Tiles", ->
     t.terrain ground
     t.terrain().property("name").should.equal "ground"
 
+  describe "#clone()", ->
+
+    tile = null
+    clone = null
+
+    beforeEach ->
+      tile = new Tile wall
+      clone = tile.clone()
+
+    it "should return a tile", ->
+      props = Object.keys clone
+      for v in Object.keys tile
+        props.should.include v
+
+    it "should share the same terrain", ->
+      tile.terrain.should.equal clone.terrain
+
+    it "should not share its entity list", ->
+      tile.addEntity monster
+      clone.entities.length.should.equal 0
+      clone.addEntity character
+      tile.entities.length.should.equal 1
+      clone.entities[0].property("name").should.not.equal tile.entities[0].property("name")
+

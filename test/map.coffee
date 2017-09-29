@@ -65,7 +65,6 @@ describe "Map", ->
         e.length.should.equal 1
         e[0].property("name").should.equal v[1]
       coords = [values[0][0], values[1][0]]
-      console.log coords
       count = 0
       for i in [0...map.width()]
         for j in [0...map.height()]

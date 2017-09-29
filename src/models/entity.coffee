@@ -93,6 +93,11 @@ class Entity
       hasReaction: @hasReaction
       property: @property
 
+    # Return an identical but independent copy of the calling entity
+    @clone = ->
+      new Entity properties: properties, reactions: reactions, validators: validators
+
+
   
   # CONSTRUCTOR #
 

@@ -3,7 +3,7 @@ Entity = require "../src/models/entity.coffee"
 
 describe "Entity", ->
 
-  publicInterface = [ "property", "react", "id", "hasProperty", "hasReaction", "protected" ]
+  publicInterface = [ "property", "react", "id", "hasProperty", "hasReaction", "protected", "clone" ]
 
   emptyEntity = null
   entityWithProperties = null
@@ -30,7 +30,7 @@ describe "Entity", ->
         reaction2: -> "react"
         reaction3: -> "another reaction"
         accessText: (property) -> @property(property)
-        setText: (value) -> @setProperty("text", "something")
+        setText: (value = "something") -> @setProperty("text", value)
     entityWithValidators = new Entity
       properties:
         value: 0
@@ -145,5 +145,39 @@ describe "Entity", ->
     it "should hide its parent's #react()", ->
       (typeof proxy.react).should.equal "undefined"
 
+  describe "#clone()", ->
+
+    clone = null
+
+    beforeEach "cloning", ->
+      clone = entityWithBoth.clone()
+
+    it "should return an entity complete with every public methods of the class", ->
+      count = 0
+      for k, v of clone
+        count++
+        (k in publicInterface).should.equal true
+      count.should.equal publicInterface.length
+
+    it "should have the properties of the creating object", ->
+      ["property2", "property3", "text"].forEach (p) ->
+        clone.hasProperty(p).should.equal true
+      
+    it "should have the reactions of the creator", ->
+      "reaction2 reaction3 accessText setText".split(" ").forEach (r) ->
+        clone.hasReaction(r).should.equal true
+
+    it "should be independent from its creator", ->
+      entityWithBoth.react "setText", "independent"
+      entityWithBoth.property("text").should.equal "independent"
+      clone.property("text").should.equal "empty"
+
+    it "should not affect its creator", ->
+      clone.react "setText", "independent"
+      clone.property("text").should.equal "independent"
+      entityWithBoth.property("text").should.equal "empty"
+
+    it "should have a different id from it's creator", ->
+      clone.id.should.not.equal entityWithBoth.id
 
 
