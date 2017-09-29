@@ -40,7 +40,7 @@ class GameLogic
     array = []
 
     @map.playableEntities.forEach (el) ->
-      array.push new Promise (resolve) -> el.react "play", game(el, resolve)
+      array.push new Promise (resolve) -> el.property "play", game(el, resolve)
 
     Promise.all array
     .then =>

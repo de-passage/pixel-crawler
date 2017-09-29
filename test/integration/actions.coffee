@@ -74,7 +74,8 @@ assertMonsterAt = (x, y, n = 1) ->
 
 describe "Action sequence", ->
 
-  logic.startTurn(null)
+  it "should run properly", ->
+    logic.startTurn() #returns a Promise
 
   it "should not do anything during turn 0, everyone passes", ->
     assertPlayerIsAt 1, 1

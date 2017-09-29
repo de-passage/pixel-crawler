@@ -42,10 +42,9 @@ module.exports =
 
   PlayableCharacter: (userInput, teamID, color) ->
     playable =
-      reactions:
+      properties:
         play: (game) ->
           handleUserInput.call this, userInput(game), game
-      properties:
         team: teamID
     if color?
       playable.properties.color = color
