@@ -40,7 +40,12 @@ showMap = (map) ->
     console.log "Map:"
     console.log display.join("\n")
 
-playerTurn = -> type: Message.pass
+playerActions =
+  [ { type: Message.pass }, { type: Message.move, direction: "right" } ]
+
+playerTurn = ->
+  playerActions.shift()
+
 monsterTurn = -> type: Message.pass
 
 player = new Constructors.PlayableCharacter(playerTurn, 1, "blue")
@@ -72,6 +77,9 @@ assertMonsterAt = (x, y, n = 1) ->
     m.x.should.equal x
     m.y.should.equal y
 
+assertNoOneAt = (x, y) ->
+  map.entitiesAt(x,y).length.should.equal 0
+
 describe "Action sequence", ->
 
   it "should run properly", ->
@@ -86,6 +94,17 @@ describe "Action sequence", ->
   it "should now be turn 1", ->
     logic.turn.should.equal 1
 
+  it "should run turn 1 properly", ->
+    logic.startTurn()
+
+  it "should have moved the player right", ->
+    assertPlayerIsAt 2, 1
+    assertMonsterAt 4, 1
+    assertMonsterAt 3, 6
+    assertMonsterAt 7, 3, 2
+    assertNoOneAt 1, 1
+
+  it "should now be turn 2", ->
 
 
     

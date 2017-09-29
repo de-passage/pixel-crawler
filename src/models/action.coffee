@@ -28,9 +28,16 @@ actions =
       mvSpeed = this.property("movement")
     catch
       throw Error "This entity (ID: #{@id}, at (#{@x}, #{@y})) cannot move"
-    try
-    catch
+
+    # Check the collision property of the terrain at {x, y} and every entity on the tile, and
+    # save in `collide` the conjunction of all those booleans, indicating wheter the entity collide
+    # (and therefore cannot enter) the target tile
+    collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) -> acc || ent.collision), false)
+    if collide
       throw Error "This entity cannot move through (#{x}, #{y})"
+
+    # Computing the squared distance to destination and comparing it to the squared movement speed
+    # to determine if the destination can be reached in 1 turn (faster than computing a square root)
     hDist = x - @x
     vDist = y - @y
     sHD = hDist * hDist
@@ -42,7 +49,7 @@ actions =
     else
       throw Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
 
-  attack: (map, target) ->
+  attack: (map, x, y, target) ->
 
   spell: (map, x, y, target) ->
 

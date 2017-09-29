@@ -29,12 +29,12 @@ gameElements=
       seethrough: true
       color: "red"
       fog: false
-      actions: ["move"]
+      actions: ["attack"]
       maxHealth: 0
       health: 0
       resistances: []
       traits: []
-      collision: true
+      collision: -> @property("health") > 0
       movement: 1
 
     validators:

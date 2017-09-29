@@ -14,7 +14,7 @@ handleUserInput = (input, game) ->
       dir = [  "up",  "left",  "down", "right"]
       adj = [[0, -1], [-1, 0], [0, 1], [1, 0]]
       # Match the direction with the lookup value
-      index = dir.indexOf message.direction
+      index = dir.indexOf input.direction
       # Build an adjusted position from the original position of the player and
       # the adjustment value in the lookup array
       nX= game.pos.x + adj[index][0]
@@ -24,7 +24,7 @@ handleUserInput = (input, game) ->
       game.move nX, nY
 
     when Message.attack
-      game.play("attack", x, y, id)
+      game.play("attack", input.x, input.y, input.id)
     when Message.spell
       game.done()
     when Message.pass
