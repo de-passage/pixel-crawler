@@ -21,7 +21,7 @@ gameElements=
     properties:
       seethrough: true
       color: "white"
-      fog: "true"
+      fog: true
       collision: false
 
   character:

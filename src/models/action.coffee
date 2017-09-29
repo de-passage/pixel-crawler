@@ -34,7 +34,7 @@ actions =
     # Check the collision property of the terrain at {x, y} and every entity on the tile, and
     # save in `collide` the conjunction of all those booleans, indicating wheter the entity collide
     # (and therefore cannot enter) the target tile
-    collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) -> console.log ent.property("collision", this); acc || ent.property("collision", this)), false)
+    collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) -> acc || ent.property("collision", this)), false)
     if collide
       throw Error "This entity cannot move through (#{x}, #{y})"
 

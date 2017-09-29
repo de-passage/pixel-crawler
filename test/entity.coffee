@@ -48,22 +48,29 @@ describe "Entity", ->
           @setProperty "sum", 0
 
 
-  it "should have properties if added", ->
-    r1 = entityWithProperties.property "property1"
-    r2 = entityWithProperties.property "property2"
-    r1.should.equal("something")
-    r2.should.equal("something else")
+  describe "#property()", ->
+    it "should have properties if added", ->
+      r1 = entityWithProperties.property "property1"
+      r2 = entityWithProperties.property "property2"
+      r1.should.equal("something")
+      r2.should.equal("something else")
 
-  it "shouldn't have properties if not added", ->
-    ( -> entityWithReactions.property "property1").should.throw(Error)
-    ( -> entityWithProperties.property "property3").should.throw(Error)
-    ( -> emptyEntity.property "property3").should.throw(Error)
+    it "shouldn't have properties if not added", ->
+      ( -> entityWithReactions.property "property1").should.throw(Error)
+      ( -> entityWithProperties.property "property3").should.throw(Error)
+      ( -> emptyEntity.property "property3").should.throw(Error)
 
-  it "should not share properties between entities", ->
-    r1 = entityWithProperties.property "property2"
-    r2 = entityWithBoth.property "property2"
-    r1.should.equal "something else"
-    r2.should.equal "something"
+    it "should not share properties between entities", ->
+      r1 = entityWithProperties.property "property2"
+      r2 = entityWithBoth.property "property2"
+      r1.should.equal "something else"
+      r2.should.equal "something"
+
+    it "should return a copy of properties", ->
+      e = new Entity properties: array: [1, 2, 3, 4]
+      p = e.property("array")
+      p[0] = 42
+      e.property("array")[0].should.equal 1
 
   it "should keep its inner state inaccessible", ->
     objects = [entityWithBoth, entityWithReactions, entityWithProperties, emptyEntity]

@@ -21,7 +21,7 @@ showMap = (map) ->
       for j in [0...10]
         push = null
         # The coordinates are inverted to iterate through the width first. The second parameter
-        # represents the vertical axis, but we are building lines instead of columns in the inner loop
+        # represents the vertical axis, but we want to build lines instead of columns in the inner loop
         if map.terrainAt(j,i).property "seethrough"
           push = "."
         else

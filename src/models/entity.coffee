@@ -34,6 +34,20 @@ class Entity
       throw new Error "Invalid assignment: forbidden to set a property (#{name}) to undefined"  if typeof value == "undefined"
       properties[name] = validate(name, prev, value)
       
+    # Perform a deep copy of the given object
+    copy = (obj) ->
+      if typeof obj is "object"
+        if Array.isArray obj
+          return obj.slice 0
+        else if typeof obj.clone is "function"
+          return obj.clone()
+        else
+          nObj = {}
+          for k, v of obj
+            nObj[k] = copy v
+          return nObj
+      else return obj
+
 
     # ###################
     # Constructor logic #
@@ -61,12 +75,17 @@ class Entity
     # #########################
 
     # Returns the property if it exists.
+    # Copy any array/entity/other object to avoid modification from the outside
     @property = (property, args...) ->
-      if typeof (p = properties[property]) is "function"
-        return p.apply(@protected, args)
-      else if typeof p isnt "undefined"
-        return p
-      throw new Error "Invalid reference: property #{property} is not defined"
+      switch typeof p = properties[property]
+        when "function"
+          return p.apply(@protected, args)
+        when "undefined"
+          throw new Error "Invalid reference: property #{property} is not defined"
+        when "object"
+          return copy p
+        else
+          return p
 
 
     # Calls for a reaction to the event "message" from source "caller" with arguments "args"
@@ -95,7 +114,7 @@ class Entity
 
     # Return an identical but independent copy of the calling entity
     @clone = ->
-      new Entity properties: properties, reactions: reactions, validators: validators
+      new Entity properties: copy(properties), reactions: copy(reactions), validators: copy(validators)
 
 
   
