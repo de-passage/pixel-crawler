@@ -4,20 +4,22 @@
 # The flow of the game is as follow: 
 #
 #   The game logic controller decides who gets to act <----
-#                       |                           |
-#                       V                           |
-#        The game logic hands out the          |
-#    action registration forms (callbacks)          |
-#                       |                           |
-#                       V                           |
-# The selected entities register one action each    |
-#                       |                           |
-#                       V                           |
-#        The game controller executes               |
-#     every action, linking to the proper           |
-#                    targets                        |
-#                       |___________________________|
+#                       |                                 |
+#                       V                                 |
+#        The game logic hands out the                     |
+#    action registration forms (callbacks)                |
+#                       |                                 |
+#                       V                                 |
+# The selected entities register one action each          |
+#                       |                                 |
+#                       V                                 |
+#        The game controller executes                     |
+#         every action in the context                     |
+#            of the acting Entity                         |
+#                       |_________________________________|
 #
+#   Actions themselves are responsible for checking that the actor 
+#   can actually do what it is trying to
 #
 
 actions =
@@ -32,7 +34,7 @@ actions =
     # Check the collision property of the terrain at {x, y} and every entity on the tile, and
     # save in `collide` the conjunction of all those booleans, indicating wheter the entity collide
     # (and therefore cannot enter) the target tile
-    collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) -> acc || ent.collision), false)
+    collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) -> console.log ent.property("collision", this); acc || ent.property("collision", this)), false)
     if collide
       throw Error "This entity cannot move through (#{x}, #{y})"
 

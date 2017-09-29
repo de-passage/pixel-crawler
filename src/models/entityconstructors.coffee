@@ -40,15 +40,12 @@ module.exports =
   EmptySpace: ->
     new Tile new Entity(gameElements.emptySpace)
 
-  PlayableCharacter: (userInput, teamID, color) ->
+  PlayableCharacter: (userInput, additionalProps = {}) ->
     playable =
       properties:
         play: (game) ->
           handleUserInput.call this, userInput(game), game
-        team: teamID
-    if color?
-      playable.properties.color = color
-    new Entity(gameElements.character, playable)
+    new Entity(gameElements.character, playable, additionalProps)
 
 
 

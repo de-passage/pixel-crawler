@@ -1,5 +1,5 @@
 chai = require "chai"
-.should()
+chai.should()
 
 _require = (folder,file) -> require "../../src/#{folder}/#{file}.coffee"
 requireModel = (file) -> _require "models", file
@@ -13,6 +13,7 @@ actions = requireModel "action"
 mapGenerator = require "./helpers/mapgen.coffee"
 
 showMap = (map) ->
+  return (->) unless process.env["VERBOSE"]
   ->
     display = []
     for i in [0...10]
@@ -41,15 +42,15 @@ showMap = (map) ->
     console.log display.join("\n")
 
 playerActions =
-  [ { type: Message.pass }, { type: Message.move, direction: "right" } ]
+  [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" } ]
 
 playerTurn = ->
   playerActions.shift()
 
 monsterTurn = -> type: Message.pass
 
-player = new Constructors.PlayableCharacter(playerTurn, 1, "blue")
-monster = -> new Constructors.PlayableCharacter(monsterTurn, 2, "red")
+player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10 })
+monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color: "red", maxHealth: 10, health: 10 })
 map = mapGenerator()
 controller = new GameController
 map.addPlayableEntityAt 1, 1, player
@@ -58,7 +59,6 @@ map.addPlayableEntityAt 3, 6, monster()
 map.addPlayableEntityAt 7, 3, monster()
 map.addPlayableEntityAt 7, 3, monster()
 showMap = showMap(map)
-showMap()
 
 logic = new GameLogic map, controller, actions
 
@@ -82,8 +82,21 @@ assertNoOneAt = (x, y) ->
 
 describe "Action sequence", ->
 
+  it "should be properly initialized", ->
+    player.property("health").should.equal 10
+    player.property("maxHealth").should.equal 10
+    player.property("color").should.equal "blue"
+
+    [[4,1],[3,6],[7,3]].forEach (coords) ->
+      for m in map.entitiesAt coords...
+        m.property("health").should.equal 10
+        m.property("maxHealth").should.equal 10
+        m.property("color").should.equal "red"
+
+
   it "should run properly", ->
-    logic.startTurn() #returns a Promise
+    showMap()
+    logic.startTurn(showMap) #returns a Promise
 
   it "should not do anything during turn 0, everyone passes", ->
     assertPlayerIsAt 1, 1
@@ -95,7 +108,7 @@ describe "Action sequence", ->
     logic.turn.should.equal 1
 
   it "should run turn 1 properly", ->
-    logic.startTurn()
+    logic.startTurn(showMap)
 
   it "should have moved the player right", ->
     assertPlayerIsAt 2, 1
@@ -105,8 +118,26 @@ describe "Action sequence", ->
     assertNoOneAt 1, 1
 
   it "should now be turn 2", ->
+    logic.turn.should.equal 2
+    # Seems to be working, will omit it from now on
+  
+  it "should run turn 2 properly", ->
+    logic.startTurn(showMap)
 
+  it "should have moved the player right", ->
+    assertPlayerIsAt 3, 1
+    assertMonsterAt 4, 1
+    assertMonsterAt 3, 6
+    assertMonsterAt 7, 3, 2
+    assertNoOneAt 2, 1
 
-    
-
+  it "should fail third movement (can't go through monster)", ->
+    logic.startTurn(showMap)
+    .then -> Promise.reject("Should have failed on the third movement (can't go through a living monster)")
+    .catch (e) ->
+      if typeof e == 'string'
+        Promise.reject new Error e
+      Promise.resolve e
+    .then (err) ->
+      chai.assert.isDefined err
 
