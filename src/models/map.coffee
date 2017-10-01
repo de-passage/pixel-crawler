@@ -65,7 +65,7 @@ class Map
     idx = i for val, i in @playableEntities when callback(val)
     if idx?
       el = @playableEntities.splice(idx, 1)[0]
-      @removeEntityAt el.x, el.y, (el2)-> el.id == el2.id
+      @removeEntityAt el.x, el.y, (el2)-> el.id() == el2.id()
       el
     else
       null
@@ -75,7 +75,7 @@ class Map
     xs = entity.x
     ys = entity.y
     return if entity.x == x and entity.y == y
-    en = @removeEntityAt entity.x, entity.y, (e) -> e.id == entity.id
+    en = @removeEntityAt entity.x, entity.y, (e) -> e.id() == entity.id()
     throw "This entity is not in the right place..." unless en?
     en.x = x
     en.y = y
@@ -88,14 +88,10 @@ class Map
   # operations can be done on them
   proxy: ->
     entitiesAt: (x, y) =>
-      @entitiesAt(x, y).map (el) ->
-        id: el.id
-        property: el.property.bind(el)
+      @entitiesAt(x, y).map (el) -> el.protected
 
     terrainAt: (x, y) =>
-      ter = @terrainAt(x, y)
-      id: ter.id
-      property: ter.property.bind(ter)
+      @terrainAt(x, y).protected
 
     width: @width.bind @
     height: @height.bind @

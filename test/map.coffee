@@ -175,13 +175,13 @@ describe "Map", ->
     it "should lose elements on removePlayableEntity()", ->
       coords = randCoord()
       map.addPlayableEntityAt coords..., entity
-      map.removePlayableEntity (e) -> e.id == entity.id
+      map.removePlayableEntity (e) -> e.id() == entity.id()
       map.playableEntities.length.should.equal 0
 
     it "should update the map tiles on removePlayableEntity()", ->
       coords = randCoord()
       map.addPlayableEntityAt coords..., entity
-      map.removePlayableEntity (e) -> e.id == entity.id
+      map.removePlayableEntity (e) -> e.id() == entity.id()
       map.entitiesAt(coords...).length.should.equal 0
 
 
@@ -206,6 +206,9 @@ describe "Map", ->
       describe "##{name}()", ->
         it "should equal the original map.#{name}() value", ->
           proxy[name]().should.equal map[name]()
+
+    publicEntityInterface = ["id", "property", "hasProperty", "hasReaction"]
+
 
     describe "#entitiesAt()", ->
       it "should return an empty array if no entities are present", ->
@@ -233,7 +236,7 @@ describe "Map", ->
         ret.length.should.equal 2
         for v, i in props
           for k in Object.keys ret[i]
-            (k in ["id", "property"]).should.equal true
+            (k in publicEntityInterface).should.equal true
           ret[i].property("name").should.equal v.properties.name
 
     describe "#terrainAt()", ->
@@ -242,7 +245,7 @@ describe "Map", ->
           for j in [0...proxy.height()]
             t = proxy.terrainAt i, j
             for k in Object.keys t
-              (k in ["id", "property"]).should.equal true
+              (k in publicEntityInterface).should.equal true
             t.property("value").should.equal i * 10 + j
 
 

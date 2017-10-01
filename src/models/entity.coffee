@@ -9,7 +9,8 @@ class Entity
   # Create an entity from the pieces of data passed to it
   constructor: (entityData...) ->
 
-    @id = Entity.count
+    id = Entity.count
+    @id = -> id
     Entity.count++
 
     reactions = {}

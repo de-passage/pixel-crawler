@@ -52,20 +52,26 @@ class GameLogic
   playTurn: (callback) ->
     permited = []
     sortFun = @rules.initiative || -> 0 # Grab the rule for initiative if exists or do nothing on sort()
+    # Iterate over the registered actions
     for action in @actions.sort(sortFun)
       a = @resolve(action)
+      # If we have a function save it for later
       if typeof a is "function"
         permited.push a.bind action.caller, @map, action.args...
-      else
+      else # Its an error, notify the controller
         @controller.emit "error", a, action
     @actions = []
+    
+    # Execute every action
     a() for a in permited
+
+    # Wrap up the turn
     @turn++
     callback?()
 
 
-  # Tries to resolve an action.
-  # Returns true if the action was resolved, false otherwise
+  # Checks whether an action can be resolved, 
+  # if so return the appropriate callback
   resolve: (arg) ->
     { caller, action, args } = arg
     f = @availableActions[action]

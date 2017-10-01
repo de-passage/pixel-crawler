@@ -110,7 +110,7 @@ describe "Entity", ->
     array = [emptyEntity, entityWithReactions, entityWithProperties, entityWithBoth]
     for i in [0...4]
       for j in [(i + 1)...4]
-        (array[i].id != array[j].id).should.equal(true)
+        (array[i].id() != array[j].id()).should.equal(true)
 
   it "should apply validators on setProperty()", ->
     entityWithValidators.react "setValue", 10
@@ -185,6 +185,6 @@ describe "Entity", ->
       entityWithBoth.property("text").should.equal "empty"
 
     it "should have a different id from it's creator", ->
-      clone.id.should.not.equal entityWithBoth.id
+      clone.id().should.not.equal entityWithBoth.id()
 
 

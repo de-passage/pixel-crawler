@@ -33,7 +33,7 @@ actions =
     try
       mvSpeed = this.property("movement")
     catch
-      return Error "This entity (ID: #{@id}, at (#{@x}, #{@y})) cannot move"
+      return Error "This entity (ID: #{@id()}, at (#{@x}, #{@y})) cannot move"
 
     # Check the collision property of the terrain at {x, y} and every entity on the tile, and
     # save in `collide` the conjunction of all those booleans, indicating wheter the entity collide
@@ -56,7 +56,7 @@ actions =
       return Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
 
   attack: (map, x, y, targetID) ->
-    target = map.findEntityAt x, y, (e) -> e.id == targetID
+    target = map.findEntityAt x, y, (e) -> e.id() == targetID
 
 
   spell: (map, x, y, target) ->
