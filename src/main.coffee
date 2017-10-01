@@ -38,6 +38,9 @@ logic = new GameLogic(map, game, actions)
 game.on "move", (xs, ys, xd, yd) ->
   tileController.updateTile(xs, ys)
   tileController.updateTile(xd, yd)
+
+game.on "error", (err, details) ->
+  console.log "Error: ", err.message, details
       
 startTurn = ->
   logic.startTurn startTurn

@@ -108,6 +108,7 @@ class Entity
 
     # Read-only version of the entity
     @protected =
+      id: @id
       hasProperty: @hasProperty
       hasReaction: @hasReaction
       property: @property

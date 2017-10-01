@@ -5,7 +5,7 @@
 
 # Handle the logic of the game. Distributes the actions and plays out the turns
 class GameLogic
-  constructor: (@map, @controller, @availableActions) ->
+  constructor: (@map, @controller, @availableActions, @rules = {}) ->
     @turn = 0
     @actions = []
     @pause = false
@@ -50,9 +50,16 @@ class GameLogic
   # Process all the actions registered for the current turn
   # The 'callback' parameter is the function to run after the turn is complete
   playTurn: (callback) ->
-    for action in @actions
-      @resolve(action)
+    permited = []
+    sortFun = @rules.initiative || -> 0 # Grab the rule for initiative if exists or do nothing on sort()
+    for action in @actions.sort(sortFun)
+      a = @resolve(action)
+      if typeof a is "function"
+        permited.push a.bind action.caller, @map, action.args...
+      else
+        @controller.emit "error", a, action
     @actions = []
+    a() for a in permited
     @turn++
     callback?()
 
@@ -63,10 +70,12 @@ class GameLogic
     { caller, action, args } = arg
     f = @availableActions[action]
     if f? and typeof f is "function"
-      f.call(caller, @map, args...)
-      true
+      c = caller.protected
+      c.x = caller.x
+      c.y = caller.y
+      f.call(c, @map.proxy(), args...)
     else
-      false
+      Error "Action #{action} is not available"
 
 
 module.exports = GameLogic

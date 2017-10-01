@@ -52,6 +52,7 @@ monsterTurn = (callback) -> callback type: Message.pass
 player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10 })
 monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color: "red", maxHealth: 10, health: 10 })
 controller = new GameController
+controller.on "error", (err) -> throw err
 map = mapGenerator(controller)
 map.addPlayableEntityAt 1, 1, player
 map.addPlayableEntityAt 4, 1, monster()
@@ -131,13 +132,10 @@ describe "Action sequence", ->
     assertMonsterAt 7, 3, 2
     assertNoOneAt 2, 1
 
-  it "should fail third movement (can't go through monster)", ->
+  it "should fail to move on the third movement (can't go through monster)", ->
     logic.startTurn(showMap)
-    .then -> Promise.reject("Should have failed on the third movement (can't go through a living monster)")
-    .catch (e) ->
-      if typeof e == 'string'
-        Promise.reject new Error e
-      Promise.resolve e
-    .then (err) ->
-      chai.assert.isDefined err
-
+    assertPlayerIsAt 3, 1
+    assertMonsterAt 4, 1
+    assertMonsterAt 3, 6
+    assertMonsterAt 7, 3, 2
+    assertNoOneAt 2, 1
