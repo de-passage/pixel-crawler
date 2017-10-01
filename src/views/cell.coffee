@@ -8,7 +8,7 @@ Cell = newClass
   displayName: "Cell"
 
   getInitialState: ->
-    color: ["blue", "red", "green", "purple", "cyan", "orange", "yellow", "yellowgreen"][Math.floor Math.random() * 8]
+    color: @props.controller.tileAt @props.pos.x, @props.pos.y #["blue", "red", "green", "purple", "cyan", "orange", "yellow", "yellowgreen"][Math.floor Math.random() * 8]
 
   componentWillMount: ->
     @props.controller.registerTile @props.pos.x, @props.pos.y, (color) =>

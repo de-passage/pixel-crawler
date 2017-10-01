@@ -11,6 +11,6 @@ class GameController
     @events[event].push action
 
   emit: (event, args...) ->
-    obs(args...) for obs of @events[event]
+    obs(args...) for k, obs of @events[event] if @events[event]
 
 module.exports = GameController

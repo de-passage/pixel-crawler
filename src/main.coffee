@@ -6,29 +6,43 @@ GameController = require "./controllers/gamecontroller.coffee"
 mapGen = require "./models/mapgenerator.coffee"
 Construct = require "./models/entityconstructors.coffee"
 InputController = require "./controllers/userinput.coffee"
+actions = require "./models/action.coffee"
+Message = require "./models/message.coffee"
 
-inputController = new InputController
-tileController = new TileController (tile) ->
-  data = tile.
-  data.property "color"
+state =
+  a: ->
+    type: Message.move
+    direction: "left"
+  w: ->
+    type: Message.move
+    direction: "up"
+  s: ->
+    type: Message.move
+    direction: "down"
+  d: ->
+    type: Message.move
+    direction: "right"
 
-player = Construct.Character(inputController, "player", "blue")
-
-map = mapGen()
-
+inputController = new InputController state
 game = new GameController
 
-logic = new GameLogic(map, game)
+player = Construct.PlayableCharacter(inputController.getInput)
 
-game.on "NewTurn", ->
-  height = tileController.height()
-  width = tileController.width()
-  for i in [0...height]
-    for j in [0...width]
-      tileController.updateTile(i, j, map.at(i, j).topLevelEntity())
+map = mapGen(player, game)
+tileController = new TileController map, (tile) ->
+  tile.property "color"
+
+
+logic = new GameLogic(map, game, actions)
+
+game.on "move", (xs, ys, xd, yd) ->
+  tileController.updateTile(xs, ys)
+  tileController.updateTile(xd, yd)
       
-
+startTurn = ->
+  logic.startTurn startTurn
 
 $ ->
   ReactDOM.render (View tileController: tileController, inputController: inputController), $("#react-content")[0]
-  logic.startTurn()
+  $(document).keypress inputController.onEvent
+  startTurn()

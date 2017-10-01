@@ -26,13 +26,17 @@ gameElements=
 
   character:
     properties:
+      weapon: null
       seethrough: true
       color: "red"
       fog: false
       actions: ["attack"]
       maxHealth: 0
       health: 0
-      resistances: []
+      resistances:
+        normal: 0
+        fire: 0
+        darkness: 0
       traits: []
       collision: -> @property("health") > 0
       movement: 1

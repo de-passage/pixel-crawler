@@ -6,7 +6,7 @@ Array2D = require "./array2d.coffee"
 class Map
 
 
-  constructor: (width, height, fill) ->
+  constructor: (width, height, @controller, fill) ->
     @playableEntities = []
     @height = ->
       height
@@ -72,12 +72,16 @@ class Map
 
   # Move an entity destination coordinates
   moveEntity: (entity, x, y) ->
+    xs = entity.x
+    ys = entity.y
     return if entity.x == x and entity.y == y
     en = @removeEntityAt entity.x, entity.y, (e) -> e.id == entity.id
     throw "This entity is not in the right place..." unless en?
     en.x = x
     en.y = y
     @addEntityAt x, y, en
+
+    @controller.emit "move", xs, ys, x, y
 
   # Returns a proxy to the target Map. A proxy is only able to access read-only properties
   # of Map and sanitize their output (Entity objects) to ensure that only read-only 

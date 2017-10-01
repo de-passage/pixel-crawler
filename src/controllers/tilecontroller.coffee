@@ -3,24 +3,19 @@
 class TileController
   # Constructor, takes an optional lookup parameter defining how to convert input data
   # to pass to the cell
-  constructor: (@lookup) ->
+  constructor: (@map, @lookup) ->
     @tiles = []
 
   # Register a callback to use when the cell at the given coordinates is to
   # be updated
   registerTile: (x, y, f) ->
-    @tiles[x + y * @width] = f
+    @tiles[x + y * @map.width()] = f
 
   # Convert the data if necessary and call the cell
   # at the given coordinates to update its display
-  updateTile: (x, y, data) ->
-    l =
-      if typeof @lookup == "function"
-        @lookup data
-      else if @lookup? and @lookup[data]?
-        @lookup[data]
-      else data
-    @tiles[x + y * @width]? l
+  updateTile: (x, y) ->
+    l = @tileAt x, y
+    @tiles[x + y * @map.width()]? l
 
   # Notifies that the mouse cursor entered the cell at the given coordinates
   mouseEnter: (x, y, event) ->
@@ -35,10 +30,20 @@ class TileController
     @onMouseLeave?()
 
   # Returns the number of vertical cells
-  height: -> @height
+  height: -> @map.height()
 
   # Returns the number of horizontal cells
-  width: -> @width
+  width: -> @map.width()
+
+  # Tile at x, y
+  tileAt: (x, y) ->
+    data = @map.topLevelEntityAt x, y
+    if typeof @lookup == "function"
+      @lookup data
+    else if @lookup? and @lookup[data]?
+      @lookup[data]
+    else data
+
 # end class TileController
 
 module.exports = TileController

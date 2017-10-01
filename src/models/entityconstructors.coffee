@@ -44,7 +44,7 @@ module.exports =
     playable =
       properties:
         play: (game) ->
-          handleUserInput.call this, userInput(game), game
+          userInput (input) => handleUserInput.call @, input, game
     new Entity(gameElements.character, playable, additionalProps)
 
 

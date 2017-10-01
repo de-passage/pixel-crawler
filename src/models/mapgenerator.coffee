@@ -1,20 +1,16 @@
-Array2D = require "./array2d.coffee"
+Map = require "./map.coffee"
 Tile = require "./tile.coffee"
 { Wall, EmptySpace } = require "./entityconstructors.coffee"
 
 # Returns an array containing at index 0 the array of the map
-generateMap = (player) ->
-  map = new Array2D(100, 100)
+generateMap = (player, controller) ->
+  map = new Map 100, 100, controller, (i, j) ->
+    if i < 3 or i >= 97 or j < 3 or j >= 97
+      new Wall
+    else
+      new EmptySpace
 
-  for i in [0...100]
-    for j in [0...100]
-      if i < 3 or i > 97 or j < 3 or j > 97
-        map.set i, j, new Tile(new Wall)
-      else
-        entities = []
-        entities.push player if i == 50 and j == 50
-        console.log "called", i, j
-        map.set i,j,new Tile(new EmptySpace, entities)
+  map.addPlayableEntityAt 50, 50, player
 
   return map
 

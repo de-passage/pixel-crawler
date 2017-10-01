@@ -51,7 +51,9 @@ actions =
     else
       throw Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
 
-  attack: (map, x, y, target) ->
+  attack: (map, x, y, targetID) ->
+    target = map.findEntityAt x, y, (e) -> e.id == targetID
+
 
   spell: (map, x, y, target) ->
 

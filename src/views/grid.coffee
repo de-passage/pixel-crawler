@@ -19,7 +19,7 @@ Grid = newClass
               controller: @props.tileController
               size: @props.pixelSize
               key: i * @props.width + j
-              fog: j < 25
+              fog: false
               pos:
                 x: j
                 y: i

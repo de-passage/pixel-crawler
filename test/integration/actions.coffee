@@ -44,15 +44,15 @@ showMap = (map) ->
 playerActions =
   [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" } ]
 
-playerTurn = ->
-  playerActions.shift()
+playerTurn = (callback) ->
+  callback playerActions.shift()
 
-monsterTurn = -> type: Message.pass
+monsterTurn = (callback) -> callback type: Message.pass
 
 player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10 })
 monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color: "red", maxHealth: 10, health: 10 })
-map = mapGenerator()
 controller = new GameController
+map = mapGenerator(controller)
 map.addPlayableEntityAt 1, 1, player
 map.addPlayableEntityAt 4, 1, monster()
 map.addPlayableEntityAt 3, 6, monster()
