@@ -61,6 +61,13 @@ actions =
     target = map.findEntityAt x, y, (e) -> e.id() == targetID
     try
       range = @property("range")
+      if inRange(@x, @y, x, y, range)
+
+      else
+        return Error
+
+    catch e
+      return e
 
 
   spell: (map, x, y, target) ->

@@ -24,7 +24,7 @@ class Entity
     # Validation for property setting.
     validate = (name, prev, value) =>
       if validators[name]?
-        value = validators[name](prev, value, @property)
+        value = validators[name].call(@protected, prev, value)
       value
 
     # Sets a property according to the validation process
