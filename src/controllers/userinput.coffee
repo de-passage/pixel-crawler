@@ -12,15 +12,15 @@ module.exports =
   class UserInputController
     constructor: (@state = {}) ->
 
-    getInput: (callback) =>
+    getInput: (callback, args...) =>
       if @buffer
-        callback @buffer
+        callback @buffer(args...)
         @buffer = null
       else
-        @callback = callback
+        @callback = (b) -> callback b(args...)
 
     onEvent: (event) =>
-      r = @state[event.key]?()
+      r = @state[event.key]
       if r
         if @callback
           @callback r

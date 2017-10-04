@@ -26,7 +26,7 @@ handleUserInput = (input, game) ->
     when Message.attack
       game.play("attack", input.x, input.y, input.id)
     when Message.spell
-      game.done()
+      game.pass()
     when Message.pass
       game.pass()
     else
@@ -44,7 +44,7 @@ module.exports =
     playable =
       properties:
         play: (game) ->
-          userInput (input) => handleUserInput.call @, input, game
+          userInput((input) => handleUserInput.call @, input, game)
     new Entity(gameElements.character, playable, additionalProps)
 
 
