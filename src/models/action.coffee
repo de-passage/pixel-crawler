@@ -26,6 +26,16 @@
 #
 #   Once every OK action has been checked, the functions are called in the same order
 
+inRange = (xs, ys, xd, yd, range) ->
+  # Computing the squared distance to destination and comparing it to the squared range
+  # to determine if the destination can be reached (faster than computing a square root)
+  hDist = xd - xs
+  vDist = yd - ys
+  sHD = hDist * hDist
+  sVD = vDist * vDist
+  sR = range * range
+  sR >= sHD + sVD
+
 actions =
   # This is wrong, doesn't check for obstacles. Should use A* and check number of steps.
   move: (map, x, y) ->
@@ -42,21 +52,15 @@ actions =
     if collide
       return Error "This entity cannot move through (#{x}, #{y})"
 
-    # Computing the squared distance to destination and comparing it to the squared movement speed
-    # to determine if the destination can be reached in 1 turn (faster than computing a square root)
-    hDist = x - @x
-    vDist = y - @y
-    sHD = hDist * hDist
-    sVD = vDist * vDist
-    sMV = mvSpeed * mvSpeed
-    inRange = sMV >= sHD + sVD
-    if inRange
+    if inRange(@x, @y, x, y, mvSpeed)
       return (map, x, y) => map.moveEntity this, x, y
     else
       return Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
 
   attack: (map, x, y, targetID) ->
     target = map.findEntityAt x, y, (e) -> e.id() == targetID
+    try
+      range = @property("range")
 
 
   spell: (map, x, y, target) ->
