@@ -26,7 +26,7 @@ handleUserInput = (input, game) ->
     when Message.attack
       game.play("attack", input.x, input.y, input.id)
     when Message.spell
-      game.pass()
+      game.action("spell", input.x, input.y, input.name, input.id)
     when Message.pass
       game.pass()
     else
@@ -40,12 +40,15 @@ module.exports =
   EmptySpace: ->
     new Tile new Entity(gameElements.emptySpace)
 
-  PlayableCharacter: (userInput, additionalProps = {}) ->
+  PlayableCharacter: (userInput, additionalProps...) ->
     playable =
       properties:
         play: (game) ->
           userInput(((input) => handleUserInput.call(@, input, game)), game)
-    new Entity(gameElements.character, playable, additionalProps)
+    new Entity(gameElements.character, playable, additionalProps...)
+
+  Weapon: (props...) ->
+    new Entity gameElements.item, gameElements.weapon, props...
 
 
 

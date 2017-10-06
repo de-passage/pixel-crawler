@@ -5,6 +5,19 @@ Entity = require "./entity.coffee"
 hasTrait = (target, trait) ->
   target.hasProperty("traits") and trait in target.property("traits")
 
+
+addToArray = (prop, element) ->
+    array = @property prop
+    array.push element
+    @setProperty prop, array
+
+removeFromArray = (prop, element) ->
+    array = @property prop
+    idx = array.indexOf element
+    if idx != -1
+      array.splice idx, 1
+      @setProperty prop, array
+
 # seethrough: Indicates whether or not the element blocks vision
 # fog: Indicates whether or not the element is visible throught the fog of war
 # color: color of the tile on screen
@@ -28,7 +41,7 @@ weapon =
     range: 1
     damage:
       normal: 1
-    effet: null
+    effet: (args) ->
 
 spell =
   properties:
@@ -44,7 +57,6 @@ character =
     seethrough: true
     color: "red"
     fog: false
-    #actions: ["attack"]
     maxHealth: 0
     health: 0
     resistances:
@@ -52,6 +64,7 @@ character =
       fire: 0
       darkness: 0
     traits: []
+    spells: [] # strings representing the name only
     collision: -> @property("health") > 0
     movement: 1
     range: ->
@@ -63,7 +76,7 @@ character =
       if w = @property("weapon")
         w.property("damage")
       else
-        1
+        normal: 1
     dead: -> @property("health") == 0
 
   reactions:
@@ -71,26 +84,26 @@ character =
       res = @property "resistances"
       total = 0
       for type, qty of damage
-        total += Math.round (res[type] || 0) * qty
+        total += Math.round (1 - (res[type] || 0)) * qty
       h = @setProperty "health", @property("health") - total
+
+    heal: (qty) ->
+      @setProperty "health", @property("health") + qty
+
+    addTrait: (element) -> addToArray.call(this, "traits", element)
+    removeTrait: (element) -> removeFromArray.call(this, "traits", element)
+    addSpell: (element) -> addToArray.call(this, "spells", element)
+    removeSpell: (element) -> removeFromArray.call(this, "spells", element)
+    changeWeapon: (weapon) -> @setProperty "weapon", weapon
 
   validators:
     health: (prev, next, props) ->
-      if next > @properties("maxHealth")
-        @properties("maxHealth")
+      if next > @property("maxHealth")
+        @property("maxHealth")
       else if next < 0
         0
       else next
     maxHealth: (prev, next) -> if next < 0 then 0 else next
-#      actions: (prev, next) ->
-#        unless Array.isArray(prev)
-#          prev = [prev]
-#        unless Array.isArray(next)
-#          next = [next]
-#        for e in next
-#          unless prev.indexOf(e) != -1
-#            prev.push e
-#        prev
 
 item =
   properties:
@@ -99,7 +112,7 @@ item =
     color: "yellow"
     collision: false
 
-gameElements= { item, character, weapon, emptySpace, wall, spell }
+gameElements = { item, character, weapon, emptySpace, wall, spell }
 
 
 

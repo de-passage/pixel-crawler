@@ -28,13 +28,15 @@
 
 inRange = (xs, ys, xd, yd, range) ->
   # Computing the squared distance to destination and comparing it to the squared range
-  # to determine if the destination can be reached (faster than computing a square root)
+  # to determine if the destination can be reached
   hDist = xd - xs
   vDist = yd - ys
   sHD = hDist * hDist
   sVD = vDist * vDist
   sR = range * range
   sR >= sHD + sVD
+
+spellList = {}
 
 actions =
   # This is wrong, doesn't check for obstacles. Should use A* and check number of steps.
@@ -62,15 +64,23 @@ actions =
     try
       range = @property("range")
       if inRange(@x, @y, x, y, range)
-
+        target.react("hit", @property("damage"))
       else
-        return Error
-
+        return Error "Target #{targetID} (#{@x}, #{@y}) of #{@id} (#{x}, #{y}) is out of range #{range}."
     catch e
       return e
 
 
-  spell: (map, x, y, target) ->
+  spell: (map, x, y, spell, target) ->
+    try
+      spells = @property("spells")
+      if spell in spells
+        spellList.react("effect", { map, x, y, target } )
+    catch e
+      return e
+
+
+
 
 
 module.exports = actions

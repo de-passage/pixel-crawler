@@ -47,6 +47,53 @@ describe "Entity", ->
         invalidReaction: ->
           @setProperty "sum", 0
 
+  describe "contructor", ->
+    it "should accept 2 hash tables as descriptors", ->
+      d1 =
+        properties:
+          property1: 0
+          property2: 1
+      d2 =
+        properties:
+          property3: 2
+      e = new Entity d1, d2
+      [1..3].forEach (n) ->
+        e.property("property" + n).should.equal n - 1
+
+    it "should give priority to the rightmost descriptors on conflict", ->
+      d1 =
+        properties:
+          property: 0
+      d2 =
+        properties:
+          property: 42
+      e = new Entity d1, d2
+      e.property("property").should.equal 42
+
+    it "should do as above with an arbitrary number of descriptors", ->
+      desc = [ {
+        properties:
+          property1: 1
+        reactions:
+          reaction: -> @setProperty "property1", 0
+      }, {
+        properties:
+          property2: -> 42 * @property("property1")
+        validators:
+          property1: (prev, next) -> if next >= 0 then next else 0
+      }, {
+        properties:
+          property1: 3
+        reactions:
+          reaction: (x) -> @setProperty "property1", x
+      } ]
+      e = new Entity desc...
+      e.property("property1").should.equal 3
+      e.property("property2").should.equal 42 * 3
+      e.react("reaction", -8)
+      e.property("property1").should.equal 0
+      e.property("property2").should.equal 0
+
 
   describe "#property()", ->
     it "should have properties if added", ->
@@ -81,30 +128,31 @@ describe "Entity", ->
         (k in publicInterface).should.equal true
     count.should.equal publicInterface.length * objects.length
     
-  it "should have reactions if added", ->
-    r1 = entityWithReactions.react "reaction1"
-    r2 = entityWithBoth.react "reaction3"
-    r1.should.equal "react"
-    r2.should.equal "another reaction"
+  describe "#react()", ->
+    it "should have reactions if added", ->
+      r1 = entityWithReactions.react "reaction1"
+      r2 = entityWithBoth.react "reaction3"
+      r1.should.equal "react"
+      r2.should.equal "another reaction"
 
-  it "shouldn't have reactions if not added", ->
-    ( -> entityWithProperties.react "reaction1").should.throw(Error)
-    ( -> entityWithReactions.react "property3").should.throw(Error)
-    ( -> emptyEntity.react "property3").should.throw(Error)
+    it "shouldn't have reactions if not added", ->
+      ( -> entityWithProperties.react "reaction1").should.throw(Error)
+      ( -> entityWithReactions.react "property3").should.throw(Error)
+      ( -> emptyEntity.react "property3").should.throw(Error)
 
-  it "should not share reactions between entities", ->
-    r1 = entityWithReactions.react "reaction2"
-    r2 = entityWithBoth.react "reaction2"
-    r1.should.equal "react to sth else"
-    r2.should.equal "react"
+    it "should not share reactions between entities", ->
+      r1 = entityWithReactions.react "reaction2"
+      r2 = entityWithBoth.react "reaction2"
+      r1.should.equal "react to sth else"
+      r2.should.equal "react"
 
-  it "should be possible to access properties from reactions", ->
-    r = entityWithBoth.react "accessText", "text"
-    r.should.equal "empty"
+    it "should be possible to access properties from reactions", ->
+      r = entityWithBoth.react "accessText", "text"
+      r.should.equal "empty"
 
-  it "should be possible to modify properties from reactions", ->
-    entityWithBoth.react "setText"
-    entityWithBoth.property("text").should.equal "something"
+    it "should be possible to modify properties from reactions", ->
+      entityWithBoth.react "setText"
+      entityWithBoth.property("text").should.equal "something"
 
   it "should have an unique ID", ->
     array = [emptyEntity, entityWithReactions, entityWithProperties, entityWithBoth]
@@ -126,15 +174,16 @@ describe "Entity", ->
     entityWithReactions.hasReaction("reaction1").should.equal true
     entityWithReactions.hasReaction("reaction3").should.equal false
 
-  it "should allow functions as properties (computed properties)", ->
-    entityWithComputedProperties.property("sum").should.equal 42 + 24
+  describe "computed properties", ->
+    it "should allow functions as properties (computed properties)", ->
+      entityWithComputedProperties.property("sum").should.equal 42 + 24
 
-  it "should throw if setProperty is called on a computed property", ->
-    ( -> entityWithComputedProperties.react("invalidReaction") ).should.throw Error
+    it "should throw if setProperty is called on a computed property", ->
+      ( -> entityWithComputedProperties.react("invalidReaction") ).should.throw Error
 
-  it "should throw if a validator is given for a computed property", ->
-    ( -> new Entity properties: { computed: -> }, validators: { computed: -> } ).should.throw Error
-    ( -> new Entity validators: { computed: -> }, properties: { computed: -> }).should.throw Error
+    it "should throw if a validator is given for a computed property", ->
+      ( -> new Entity properties: { computed: -> }, validators: { computed: -> } ).should.throw Error
+      ( -> new Entity validators: { computed: -> }, properties: { computed: -> }).should.throw Error
 
   describe "#protected", ->
     proxy = null
