@@ -41,6 +41,10 @@ showMap = (map) ->
     console.log "Map:"
     console.log display.join("\n")
 
+# ################
+# Initialization #
+# ################
+
 playerActions =
   [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" } ]
 
@@ -63,6 +67,12 @@ showMap = showMap(map)
 
 logic = new GameLogic map, controller, actions
 
+sword = new Constructors.Weapon properties: damage: normal: 3
+
+# #########
+# Helpers #
+# #########
+
 assertPlayerIsAt = (x, y) ->
   e = map.entitiesAt x, y
   e.length.should.equal 1
@@ -81,11 +91,17 @@ assertMonsterAt = (x, y, n = 1) ->
 assertNoOneAt = (x, y) ->
   map.entitiesAt(x,y).length.should.equal 0
 
+# #######
+# Tests #
+# #######
+
 describe "Action sequence", ->
 
   it "should be properly initialized", ->
+    player.react("changeWeapon", sword)
     player.property("health").should.equal 10
     player.property("maxHealth").should.equal 10
+    player.property("damage").normal.should.equal 3
     player.property("color").should.equal "blue"
 
     [[4,1],[3,6],[7,3]].forEach (coords) ->
