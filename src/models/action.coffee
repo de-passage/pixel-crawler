@@ -55,7 +55,7 @@ actions =
       return Error "This entity cannot move through (#{x}, #{y})"
 
     if inRange(@x, @y, x, y, mvSpeed)
-      return (map, x, y) => map.moveEntity this, x, y
+      map.moveEntity this, x, y
     else
       return Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
 

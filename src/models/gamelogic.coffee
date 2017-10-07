@@ -50,20 +50,14 @@ class GameLogic
   # Process all the actions registered for the current turn
   # The 'callback' parameter is the function to run after the turn is complete
   playTurn: (callback) ->
-    permited = []
-    sortFun = @rules.initiative || -> 0 # Grab the rule for initiative if exists or do nothing on sort()
+    sortFun = @rules.initiative || (x) -> x # Grab the rule for initiative if exists or do nothing on sort()
+    
     # Iterate over the registered actions
-    for action in @actions.sort(sortFun)
+    for action in sortFun @actions
       a = @resolve(action)
-      # If we have a function save it for later
-      if typeof a is "function"
-        permited.push a.bind action.caller, @map, action.args...
-      else # Its an error, notify the controller
+      if a # If its an error, notify the controller
         @controller.emit "error", a, action
     @actions = []
-    
-    # Execute every action
-    a() for a in permited
 
     # Wrap up the turn
     @turn++
@@ -76,10 +70,10 @@ class GameLogic
     { caller, action, args } = arg
     f = @availableActions[action]
     if f? and typeof f is "function"
-      c = caller.protected
+      c = caller
       c.x = caller.x
       c.y = caller.y
-      f.call(c, @map.proxy(), args...)
+      f.call(c, @map, args...)
     else
       Error "Action #{action} is not available"
 
