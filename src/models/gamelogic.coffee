@@ -75,7 +75,7 @@ class GameLogic
       c.y = caller.y
       f.call(c, @map, args...)
     else
-      Error "Action #{action} is not available"
+      new Error "Action #{action} is not available"
 
 
 module.exports = GameLogic

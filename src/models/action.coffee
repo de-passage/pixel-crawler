@@ -41,32 +41,32 @@ spellList = {}
 actions =
   # This is wrong, doesn't check for obstacles. Should use A* and check number of steps.
   move: (map, x, y) ->
-    mvSpeed = null
     try
       mvSpeed = this.property("movement")
+
+      # Check the collision property of the terrain at {x, y} and every entity on the tile, and
+      # save in `collide` the conjunction of all those booleans, indicating wheter the entity collide
+      # (and therefore cannot enter) the target tile
+      collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) => acc || ent.property("collision", this)), false)
+      if collide
+        return new Error "This entity cannot move through (#{x}, #{y})"
+
+      if inRange(@x, @y, x, y, mvSpeed)
+        map.moveEntity this, x, y
+      else
+        return new Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
+
     catch
-      return Error "This entity (ID: #{@id()}, at (#{@x}, #{@y})) cannot move"
-
-    # Check the collision property of the terrain at {x, y} and every entity on the tile, and
-    # save in `collide` the conjunction of all those booleans, indicating wheter the entity collide
-    # (and therefore cannot enter) the target tile
-    collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) => acc || ent.property("collision", this)), false)
-    if collide
-      return Error "This entity cannot move through (#{x}, #{y})"
-
-    if inRange(@x, @y, x, y, mvSpeed)
-      map.moveEntity this, x, y
-    else
-      return Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
+      return new Error "This entity (ID: #{@id()}, at (#{@x}, #{@y})) cannot move (no 'movement' property)"
 
   attack: (map, x, y, targetID) ->
-    target = map.findEntityAt x, y, (e) -> e.id() == targetID
     try
+      target = map.findEntityAt x, y, (e) -> e.id() == targetID
       range = @property("range")
       if inRange(@x, @y, x, y, range)
         target.react("hit", @property("damage"))
       else
-        return Error "Target #{targetID} (#{@x}, #{@y}) of #{@id} (#{x}, #{y}) is out of range #{range}."
+        return new Error "Target #{targetID} (#{@x}, #{@y}) of #{@id} (#{x}, #{y}) is out of range #{range}."
     catch e
       return e
 
