@@ -49,15 +49,15 @@ actions =
       # (and therefore cannot enter) the target tile
       collide = [map.terrainAt(x,y)].concat(map.entitiesAt(x,y)).reduce(((acc, ent) => acc || ent.property("collision", this)), false)
       if collide
-        return new Error "This entity cannot move through (#{x}, #{y})"
+        throw new Error "This entity cannot move through (#{x}, #{y})"
 
       if inRange(@x, @y, x, y, mvSpeed)
         map.moveEntity this, x, y
       else
-        return new Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
+        throw new Error "This entity's movement speed (#{mvSpeed}) doesn't allow it to travel to (#{x}, #{y})"
 
     catch
-      return new Error "This entity (ID: #{@id()}, at (#{@x}, #{@y})) cannot move (no 'movement' property)"
+      throw new Error "This entity (ID: #{@id()}, at (#{@x}, #{@y})) cannot move (no 'movement' property)"
 
   attack: (map, x, y, targetID) ->
     try
@@ -66,7 +66,7 @@ actions =
       if inRange(@x, @y, x, y, range)
         target.react("hit", @property("damage"))
       else
-        return new Error "Target #{targetID} (#{@x}, #{@y}) of #{@id} (#{x}, #{y}) is out of range #{range}."
+        throw new Error "Target #{targetID} (#{@x}, #{@y}) of #{@id} (#{x}, #{y}) is out of range #{range}."
     catch e
       return e
 

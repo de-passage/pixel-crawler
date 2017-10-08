@@ -52,16 +52,20 @@ class GameLogic
   playTurn: (callback) ->
     sortFun = @rules.initiative || (x) -> x # Grab the rule for initiative if exists or do nothing on sort()
     
-    # Iterate over the registered actions
-    for action in sortFun @actions
-      a = @resolve(action)
-      if a # If its an error, notify the controller
-        @controller.emit "error", a, action
-    @actions = []
+    try
+      # Iterate over the registered actions
+      for action in sortFun @actions
+        try
+          @resolve(action)
+        catch e # If an error occurs, notify the controller
+          @controller.emit "error", e, action
 
-    # Wrap up the turn
-    @turn++
-    callback?()
+    finally # This is needed because the controller may throw, which would make the entire thing choke
+      @actions = []
+
+      # Wrap up the turn
+      @turn++
+      callback?()
 
 
   # Checks whether an action can be resolved, 

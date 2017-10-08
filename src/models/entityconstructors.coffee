@@ -26,7 +26,7 @@ handleUserInput = (input, game) ->
     when Message.attack
       game.play("attack", input.x, input.y, input.id)
     when Message.spell
-      game.action("spell", input.x, input.y, input.name, input.id)
+      game.play("spell", input.x, input.y, input.name, input.id)
     when Message.pass
       game.pass()
     else
@@ -46,14 +46,15 @@ module.exports =
   #     -> `play` calls the userInput with an interpretation callback and the map (proxy)
   #     -> `userInput` creates a Message and passes it to the callback
   #     -> the callback calls handleUserInput to transform the message in an appropriate call to the
-  #        `action` function of `game`
-  #     -> `action` (or one of its shorthands), resolve the underlying promise
+  #        `play` function of `game`
+  #     -> `play` (or one of its shorthands), resolve the underlying promise
   # Once this is done for every playable entity, execution of the turn resumes, actions are resolved and so on
 
   PlayableCharacter: (userInput, additionalProps...) ->
     playable =
       properties:
         play: (game) ->
+          { @x, @y } = game.pos
           userInput.call(@, ((input) => handleUserInput(input, game)), game.map)
     new Entity(gameElements.character, playable, additionalProps...)
 

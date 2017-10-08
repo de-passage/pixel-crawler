@@ -45,11 +45,15 @@ showMap = (map) ->
 # Initialization #
 # ################
 
-playerActions =
-  [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" } ]
+attackRight = (map) ->
+  id = map.entitiesAt(@x + 1, @y)[0].id()
+  { type: Message.attack, x: @x + 1, y: @y, id: id }
 
-playerTurn = (callback) ->
-  callback playerActions.shift()
+playerActions =
+  [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" }, attackRight ]
+
+playerTurn = (callback, map) ->
+  callback if typeof (c = playerActions.shift()) is "function" then c.call(this, map) else c
 
 monsterTurn = (callback) -> callback type: Message.pass
 
@@ -155,3 +159,10 @@ describe "Action sequence", ->
     assertMonsterAt 3, 6
     assertMonsterAt 7, 3, 2
     assertNoOneAt 2, 1
+
+  it "should run turn 4 properly", ->
+    logic.startTurn(showMap)
+
+  it "should resolve attacks properly", ->
+    monster = map.topLevelEntityAt(4, 1)
+    monster.property("health").should.equal 7
