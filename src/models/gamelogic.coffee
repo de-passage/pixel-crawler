@@ -35,7 +35,7 @@ class GameLogic
       map: @map.proxy()
       play: play
       move: (x, y) ->
-        play "move", x, y
+        play "move", x, y, entity.x, entity.y
       pass: resolve
 
     array = []
@@ -57,6 +57,7 @@ class GameLogic
       for action in sortFun @actions
         try
           @resolve(action)
+          @controller.emit action.action, action
         catch e # If an error occurs, notify the controller
           @controller.emit "error", e, action
 

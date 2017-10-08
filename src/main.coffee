@@ -28,14 +28,15 @@ game = new GameController
 
 player = Construct.PlayableCharacter(inputController.getInput)
 
-map = mapGen(player, game)
+map = mapGen(player)
 tileController = new TileController map, (tile) ->
   tile.property "color"
 
 
 logic = new GameLogic(map, game, actions)
 
-game.on "move", (xs, ys, xd, yd) ->
+game.on "move", (e) ->
+  [xd, yd, xs, ys] = e.args
   tileController.updateTile(xs, ys)
   tileController.updateTile(xd, yd)
 

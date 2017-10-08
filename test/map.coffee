@@ -5,7 +5,6 @@ chai = require "chai"
 chai.should()
 
 map = null
-controller = emit: ->
 
 randCoord = ->
     randInt = (dim) -> Math.floor(Math.random() * map[dim]())
@@ -13,13 +12,13 @@ randCoord = ->
 
 describe "Map", ->
   beforeEach "should be constructible", ->
-    map = new Map 10, 10, controller, (x, y) ->
+    map = new Map 10, 10, (x, y) ->
       new Tile new Entity
         properties:
           value: x * 10 + y
 
   it "should be constructible with an initialization function", ->
-    map = new Map 10, 10, controller, (x, y) ->
+    map = new Map 10, 10, (x, y) ->
       entity = new Entity
         properties:
           x: x
@@ -37,7 +36,7 @@ describe "Map", ->
   ["width", "height"].forEach (dim, idx) ->
     it "should expose its #{dim} as a method of the same name", ->
       for vals in [ [10, 10], [3, 50], [34, 9]]
-        map = new Map vals..., controller, -> null
+        map = new Map vals..., -> null
         map[dim]().should.equal vals[idx]
 
   it "should return the correct terrain on terrainAt", ->

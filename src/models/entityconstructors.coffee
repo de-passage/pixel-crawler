@@ -55,7 +55,7 @@ module.exports =
       properties:
         play: (game) ->
           { @x, @y } = game.pos
-          userInput.call(@, ((input) => handleUserInput(input, game)), game.map)
+          userInput.call(@, ((input) => handleUserInput.call(@, input, game)), game.map)
     new Entity(gameElements.character, playable, additionalProps...)
 
   Weapon: (props...) ->

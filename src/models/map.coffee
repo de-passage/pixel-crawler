@@ -6,7 +6,7 @@ Array2D = require "./array2d.coffee"
 class Map
 
 
-  constructor: (width, height, @controller, fill) ->
+  constructor: (width, height, fill) ->
     @playableEntities = []
     @height = ->
       height
@@ -81,7 +81,7 @@ class Map
     en.y = y
     @addEntityAt x, y, en
 
-    @controller.emit "move", xs, ys, x, y
+    #@controller.emit "move", xs, ys, x, y
 
   # Returns a proxy to the target Map. A proxy is only able to access read-only properties
   # of Map and sanitize their output (Entity objects) to ensure that only read-only 

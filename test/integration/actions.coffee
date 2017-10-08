@@ -40,6 +40,7 @@ showMap = (map) ->
       display.push temp.join(" ")
     console.log "Map:"
     console.log display.join("\n")
+    console.log "\n\n"
 
 # ################
 # Initialization #
@@ -50,17 +51,37 @@ attackRight = (map) ->
   { type: Message.attack, x: @x + 1, y: @y, id: id }
 
 playerActions =
-  [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" }, attackRight ]
+  [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" }, attackRight, attackRight, attackRight, attackRight]
 
-playerTurn = (callback, map) ->
-  callback if typeof (c = playerActions.shift()) is "function" then c.call(this, map) else c
+playerTurn = (play, map) ->
+  play if typeof (c = playerActions.shift()) is "function" then c.call(this, map) else c
 
-monsterTurn = (callback) -> callback type: Message.pass
+monsterTurn = (play, map) ->
+  [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach (p) =>
+    [x, y] = p
+    nX = @x + x
+    nY =  @y + y
+    if nX >= 0 and nY >= 0
+      entities = map.entitiesAt(nX, nY)
+      pl = entity for entity in entities when entity.property("team") == "player"
+      if pl
+        plid = pl.id()
+        r =
+          id: pl.id()
+          x: nX
+          y: nY
+          type: Message.attack
+        play r
+  play type: Message.pass
 
-player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10 })
-monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color: "red", maxHealth: 10, health: 10 })
+sword = new Constructors.Weapon properties: damage: normal: 3
+claw = new Constructors.Weapon properties: damage: normal: 1
+player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10, team: "player" })
+monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color: "red", maxHealth: 10, health: 10, team: "monster", weapon: claw.clone() })
 controller = new GameController
 controller.on "error", (err) -> throw err
+controller.on "move", (e) -> if(process.env["VERBOSE"]) then console.log "move", e.caller.property("team"), e.args...
+controller.on "attack", (e) -> if(process.env["VERBOSE"]) then console.log "attack", e.caller.property("team"), e.args...
 map = mapGenerator(controller)
 map.addPlayableEntityAt 1, 1, player
 map.addPlayableEntityAt 4, 1, monster()
@@ -71,7 +92,6 @@ showMap = showMap(map)
 
 logic = new GameLogic map, controller, actions
 
-sword = new Constructors.Weapon properties: damage: normal: 3
 
 # #########
 # Helpers #
@@ -116,7 +136,7 @@ describe "Action sequence", ->
 
 
   it "should run properly", ->
-    showMap()
+    #showMap()
     logic.startTurn(showMap) #returns a Promise
 
   it "should not do anything during turn 0, everyone passes", ->
@@ -166,3 +186,4 @@ describe "Action sequence", ->
   it "should resolve attacks properly", ->
     monster = map.topLevelEntityAt(4, 1)
     monster.property("health").should.equal 7
+    player.property("health").should.equal 9
