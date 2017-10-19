@@ -8,8 +8,6 @@ requireController = (file) -> _require "controllers", file
 GameLogic = requireModel "gamelogic"
 GameController = requireController "gamecontroller"
 Constructors = requireModel "entityconstructors"
-Message = requireModel "message"
-MessageConstructor = requireModel "messageconstructor"
 actions = requireModel "action"
 mapGenerator = require "./helpers/mapgen.coffee"
 showMap = require "./helpers/showMap.coffee"
@@ -19,41 +17,14 @@ assertions = require "./helpers/assertions.coffee"
 # Initialization #
 # ################
 
-attackRight = (map) ->
-  id = map.entitiesAt(@x + 1, @y)[0].id()
-  MessageConstructor.attack @x + 1, @y, id
-
-playerActions = [
-  MessageConstructor.pass(),
-  MessageConstructor.move("right"),
-  MessageConstructor.move("right"),
-  MessageConstructor.move("right"),
-  attackRight,
-  attackRight,
-  attackRight,
-  attackRight,
-  -> MessageConstructor.spell "heal", @x, @y, @id()
-]
-
-playerTurn = (play, map) ->
-  play if typeof (c = playerActions.shift()) is "function" then c.call(this, map) else c
-
-monsterTurn = (play, map) ->
-  [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach (p) =>
-    [x, y] = p
-    nX = @x + x
-    nY =  @y + y
-    if nX >= 0 and nY >= 0
-      entities = map.entitiesAt(nX, nY)
-      pl = entity for entity in entities when entity.property("team") == "player"
-      if pl
-        return play MessageConstructor.attack nX, nY, pl.id()
-  play MessageConstructor.pass()
+{ playerTurn, monsterTurn } = require "./helpers/inputfunctions.coffee"
 
 sword = new Constructors.Weapon properties: damage: normal: 3
 claw = new Constructors.Weapon properties: damage: normal: 1
-player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10, team: "player" })
+player = new Constructors.PlayableCharacter(playerTurn, properties: { color: "blue", maxHealth: 10, health: 10, team: "player", spells: ["heal"] })
 monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color: "red", maxHealth: 10, health: 10, team: "monster", weapon: claw.clone() })
+
+
 controller = new GameController
 controller.on "error", (err) -> throw err
 controller.on "move", (e) -> if(process.env["VERBOSE"]) then console.log "move", e.caller.property("team"), e.args...
@@ -65,6 +36,7 @@ map.addPlayableEntityAt 3, 6, monster()
 map.addPlayableEntityAt 7, 3, monster()
 map.addPlayableEntityAt 7, 3, monster()
 showMap = showMap(map)
+
 { assertMonsterAt, assertNoOneAt, assertPlayerIsAt } = assertions(map, player)
 
 logic = new GameLogic map, controller, actions, entityFilter: (list) -> (e for e in list when !e.property("dead"))

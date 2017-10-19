@@ -45,11 +45,12 @@ weapon =
 
 spell =
   properties:
+    range: 0
     cost: 0
     cooldown: 0
     area: (args) -> []
   reactions:
-    effect: (args) ->
+    effect: (caster, aoe) ->
 
 character =
   properties:
@@ -59,6 +60,8 @@ character =
     fog: false
     maxHealth: 0
     health: 0
+    mana: 0
+    maxMana: 0
     resistances:
       normal: 0
       fire: 0

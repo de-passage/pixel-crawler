@@ -8,7 +8,7 @@ module.exports =
     type: message.pass
   spell: (name, x, y, id) ->
     type: message.spell
-    name: "name"
+    name: name
     x: x
     y: y
     id: id

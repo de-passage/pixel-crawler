@@ -63,7 +63,8 @@ class GameLogic
         catch e # If an error occurs, notify the controller
           @controller.emit "error", e, action
 
-    finally # This is needed because the controller may throw, which would make the entire thing choke
+    finally # This is needed because the controller may throw during the catch, 
+            # which would make the entire thing choke
       @actions = []
 
       # Wrap up the turn
