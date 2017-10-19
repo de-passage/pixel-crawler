@@ -9,38 +9,11 @@ GameLogic = requireModel "gamelogic"
 GameController = requireController "gamecontroller"
 Constructors = requireModel "entityconstructors"
 Message = requireModel "message"
+MessageConstructor = requireModel "messageconstructor"
 actions = requireModel "action"
 mapGenerator = require "./helpers/mapgen.coffee"
-
-showMap = (map) ->
-  return (->) unless process.env["VERBOSE"]
-  ->
-    display = []
-    for i in [0...10]
-      temp = []
-      for j in [0...10]
-        push = null
-        # The coordinates are inverted to iterate through the width first. The second parameter
-        # represents the vertical axis, but we want to build lines instead of columns in the inner loop
-        if map.terrainAt(j,i).property "seethrough"
-          push = "."
-        else
-          push = "#"
-        if (e = map.entitiesAt(j,i)).length > 0
-          if e.length > 1
-            push = "X"
-          else
-            switch e[0].property("color")
-              when "blue"
-                push = "P"
-              when "red"
-                push = "M"
-        temp.push push
-
-      display.push temp.join(" ")
-    console.log "Map:"
-    console.log display.join("\n")
-    console.log "\n\n"
+showMap = require "./helpers/showMap.coffee"
+assertions = require "./helpers/assertions.coffee"
 
 # ################
 # Initialization #
@@ -48,10 +21,19 @@ showMap = (map) ->
 
 attackRight = (map) ->
   id = map.entitiesAt(@x + 1, @y)[0].id()
-  { type: Message.attack, x: @x + 1, y: @y, id: id }
+  MessageConstructor.attack @x + 1, @y, id
 
-playerActions =
-  [ { type: Message.pass }, { type: Message.move, direction: "right" }, { type: Message.move, direction: "right" } , { type: Message.move, direction: "right" }, attackRight, attackRight, attackRight, attackRight]
+playerActions = [
+  MessageConstructor.pass(),
+  MessageConstructor.move("right"),
+  MessageConstructor.move("right"),
+  MessageConstructor.move("right"),
+  attackRight,
+  attackRight,
+  attackRight,
+  attackRight,
+  -> MessageConstructor.spell "heal", @x, @y, @id()
+]
 
 playerTurn = (play, map) ->
   play if typeof (c = playerActions.shift()) is "function" then c.call(this, map) else c
@@ -65,14 +47,8 @@ monsterTurn = (play, map) ->
       entities = map.entitiesAt(nX, nY)
       pl = entity for entity in entities when entity.property("team") == "player"
       if pl
-        plid = pl.id()
-        r =
-          id: pl.id()
-          x: nX
-          y: nY
-          type: Message.attack
-        play r
-  play type: Message.pass
+        return play MessageConstructor.attack nX, nY, pl.id()
+  play MessageConstructor.pass()
 
 sword = new Constructors.Weapon properties: damage: normal: 3
 claw = new Constructors.Weapon properties: damage: normal: 1
@@ -89,31 +65,9 @@ map.addPlayableEntityAt 3, 6, monster()
 map.addPlayableEntityAt 7, 3, monster()
 map.addPlayableEntityAt 7, 3, monster()
 showMap = showMap(map)
+{ assertMonsterAt, assertNoOneAt, assertPlayerIsAt } = assertions(map, player)
 
-logic = new GameLogic map, controller, actions
-
-
-# #########
-# Helpers #
-# #########
-
-assertPlayerIsAt = (x, y) ->
-  e = map.entitiesAt x, y
-  e.length.should.equal 1
-  e[0].property("color").should.equal "blue"
-  player.x.should.equal x
-  player.y.should.equal y
-
-assertMonsterAt = (x, y, n = 1) ->
-  e = map.entitiesAt x, y
-  e.length.should.equal n
-  for m in e
-    m.property("color").should.equal "red"
-    m.x.should.equal x
-    m.y.should.equal y
-
-assertNoOneAt = (x, y) ->
-  map.entitiesAt(x,y).length.should.equal 0
+logic = new GameLogic map, controller, actions, entityFilter: (list) -> (e for e in list when !e.property("dead"))
 
 # #######
 # Tests #
@@ -161,7 +115,7 @@ describe "Action sequence", ->
   it "should now be turn 2", ->
     logic.turn.should.equal 2
     # Seems to be working, will omit it from now on
-  
+
   it "should run turn 2 properly", ->
     logic.startTurn(showMap)
 
@@ -187,3 +141,25 @@ describe "Action sequence", ->
     monster = map.topLevelEntityAt(4, 1)
     monster.property("health").should.equal 7
     player.property("health").should.equal 9
+
+  it "should run turn 5, 6 and 7 properly", ->
+    logic.startTurn()
+    logic.startTurn()
+    logic.startTurn(showMap)
+
+  it "should now be turn 8", ->
+    logic.turn.should.equal 8
+
+  it "should have seen the death of the monster", ->
+    monster = map.topLevelEntityAt 4, 1
+    monster.property("dead").should.equal true
+
+  it "should have left the player with 6 hp", ->
+    player.property("health").should.equal 6
+
+  it "should play turn 8 properly", ->
+    logic.startTurn(showMap)
+
+  it "should have healed the player through the heal spell", ->
+    player.property("health").should.equal 10
+

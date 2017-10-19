@@ -40,7 +40,9 @@ class GameLogic
 
     array = []
 
-    @map.playableEntities.forEach (el) ->
+    entityFilter = @rules.entityFilter || (x) -> x
+
+    entityFilter(@map.playableEntities).forEach (el) ->
       array.push new Promise (resolve) -> el.property "play", game(el, resolve)
 
     Promise.all array
@@ -51,7 +53,7 @@ class GameLogic
   # The 'callback' parameter is the function to run after the turn is complete
   playTurn: (callback) ->
     sortFun = @rules.initiative || (x) -> x # Grab the rule for initiative if exists or do nothing on sort()
-    
+
     try
       # Iterate over the registered actions
       for action in sortFun @actions
@@ -69,7 +71,7 @@ class GameLogic
       callback?()
 
 
-  # Checks whether an action can be resolved, 
+  # Checks whether an action can be resolved,
   # if so return the appropriate callback
   resolve: (arg) ->
     { caller, action, args } = arg

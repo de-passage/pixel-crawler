@@ -75,7 +75,8 @@ actions =
     try
       spells = @property("spells")
       if spell in spells
-        spellList.react("effect", { map, x, y, target } )
+        spellList[spell].react("effect", { map, x, y, target } )
+      else throw new Error "This entity (id: #{@id()}) cannot cast `#{spell}`"
     catch e
       return e
 
