@@ -9,18 +9,25 @@ class GameLogic
     @turn = 0
 
   playTurn: (callback) ->
-    @controller.emit "new_turn"
+    @controller.emit "new_turn", @turn
 
-    playBuilder = (entity, resolve) =>
+    playBuilder = (entity, resolve, reject) =>
+      played = null
       play = (action, args...) =>
+        if played
+          return @controller.emit "error", new Error "An entity tried to act more than once (`#{action}` and `#{played}`)"
+        else
+          played = action
         @resolve caller: entity, action: action, args: args, map: @map
+        @controller.emit action, caller: entity, map: @map, args: args
         resolve()
       pos: { x: entity.x, y: entity.y }
       map: @map.proxy()
       play: play
       move: (x, y) ->
         play "move", x, y, entity.x, entity.y
-      pass: resolve
+      pass: =>
+        play "pass"
 
     filter = @rules.initiative || (x) -> x
     list = filter @map.playableEntities.slice()
@@ -32,11 +39,12 @@ class GameLogic
       entity = list.shift()
       new Promise (resolve, reject) =>
         try
-          @rules.play(entity, builder(entity, resolve))
+          @rules.play(entity, builder(entity, resolve, reject))
         catch e
           reject(e)
       .catch (e) =>
-        @controller.emit "error", e
+        try # Just ignore errors emitted by the controller in this case. The show must go on
+          @controller.emit "error", e
       .then =>
         @nextAction list, callback, builder
 

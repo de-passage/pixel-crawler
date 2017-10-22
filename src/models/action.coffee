@@ -35,6 +35,9 @@ inRange = (xs, ys, xd, yd, range) ->
 spellList = require "./spells.coffee"
 
 actions =
+  pass: ->
+    # Passing does nothing
+    
   # This is wrong, doesn't check for obstacles. Should use A* and check number of steps.
   move: (map, x, y) ->
     try

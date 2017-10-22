@@ -26,9 +26,21 @@ monster = -> new Constructors.PlayableCharacter(monsterTurn, properties: { color
 
 
 controller = new GameController
-controller.on "error", (err) -> throw err
+controller.on "error", (err) ->
+  if(process.env["VERBOSE"])
+    console.log "ERROR: #{err.message}"
+  throw err
 controller.on "move", (e) -> if(process.env["VERBOSE"]) then console.log "move", e.caller.property("team"), e.args...
-controller.on "attack", (e) -> if(process.env["VERBOSE"]) then console.log "attack", e.caller.property("team"), e.args...
+controller.on "attack", (e) ->
+  if(process.env["VERBOSE"])
+    target = map.findEntityAt(e.args[0], e.args[1], (em)-> em.id() == e.args[2])
+    console.log "#{e.caller.property("team")} at (#{e.caller.x}, #{e.caller.y}) with id: #{e.caller.id()} attacked #{target.property("team")} with id: #{target.id()} at (#{target.x}, #{target.y})"
+controller.on "spell", (e) ->
+  if(process.env["VERBOSE"])
+    console.log "#{e.caller.property("team")} at (#{e.caller.x}, #{e.caller.y}) with id: #{e.caller.id()} used `#{e.args[2]}`"
+controller.on "pass", (e) -> if(process.env["VERBOSE"]) then console.log "#{e.caller.property("team")} at (#{e.caller.x}, #{e.caller.y}) with id: #{e.caller.id()} passed its turn"
+controller.on "new_turn", (t) -> if(process.env["VERBOSE"]) then console.log "New turn: #{t}"
+controller.on "end_turn", (t) -> if(process.env["VERBOSE"]) then console.log "End of turn: #{t}"
 map = mapGenerator(controller)
 map.addPlayableEntityAt 1, 1, player
 map.addPlayableEntityAt 4, 1, monster()
@@ -101,6 +113,12 @@ describe "Action sequence", ->
     assertMonsterAt 7, 3, 2
     assertNoOneAt 2, 1
 
+  it "should have hit the player with an attack from the closest monster since it is in range", ->
+    player.property("health").should.equal 9
+
+  it "should now be turn 3", ->
+    logic.turn.should.equal 3
+
   it "should fail to move on the third movement (can't go through monster)", ->
     logic.playTurn(showMap)
     assertPlayerIsAt 3, 1
@@ -109,18 +127,24 @@ describe "Action sequence", ->
     assertMonsterAt 7, 3, 2
     assertNoOneAt 2, 1
 
+  it "should still have resolved other player's turns despite the error", ->
+    player.property("health").should.equal 8
+
+  it "should now be turn 4", ->
+    logic.turn.should.equal 4
+
   it "should run turn 4 properly", ->
     logic.playTurn(showMap)
 
   it "should resolve attacks properly", ->
     monster = map.topLevelEntityAt(4, 1)
     monster.property("health").should.equal 7
-    player.property("health").should.equal 9
+    player.property("health").should.equal 7
 
   it "should run turn 5, 6 and 7 properly", ->
-    logic.playTurn()
-    logic.playTurn()
-    logic.playTurn(showMap)
+    logic.playTurn().then ->
+      logic.playTurn().then ->
+        logic.playTurn(showMap)
 
   it "should now be turn 8", ->
     logic.turn.should.equal 8
@@ -129,12 +153,12 @@ describe "Action sequence", ->
     monster = map.topLevelEntityAt 4, 1
     monster.property("dead").should.equal true
 
-  it "should have left the player with 6 hp", ->
-    player.property("health").should.equal 6
+  it "should have left the player with 5 hp", ->
+    player.property("health").should.equal 4
 
   it "should play turn 8 properly", ->
     logic.playTurn(showMap)
 
   it "should have healed the player through the heal spell", ->
-    player.property("health").should.equal 10
+    player.property("health").should.equal 9
 

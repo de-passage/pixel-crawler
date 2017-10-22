@@ -21,6 +21,8 @@ module.exports =
     play if typeof (c = playerActions.shift()) is "function" then c.call(this, map) else c
 
   monsterTurn: (play, map) ->
+    m = MessageConstructor.pass()
+    t = null
     [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach (p) =>
       [x, y] = p
       nX = @x + x
@@ -29,5 +31,6 @@ module.exports =
         entities = map.entitiesAt(nX, nY)
         pl = entity for entity in entities when entity.property("team") == "player"
         if pl
-          return play MessageConstructor.attack nX, nY, pl.id()
-    play MessageConstructor.pass()
+          t = true
+          m = MessageConstructor.attack nX, nY, pl.id()
+    play m

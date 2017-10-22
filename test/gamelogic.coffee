@@ -22,11 +22,11 @@ describe "GameLogic", ->
 
   it "should emit a new_turn event at the start of a new turn", ->
     logic.playTurn()
-    sinon.assert.calledWith controller.emit, "NewTurn"
+    sinon.assert.calledWith controller.emit, "new_turn"
 
   it "should emit a end_turn event at the end of a new turn", ->
     logic.playTurn()
-    sinon.assert.calledWith controller.emit, "NewTurn"
+    sinon.assert.calledWith controller.emit, "end_turn"
 
   it "should increment the turn count at the end of playTurn()", ->
     turn = logic.turn
