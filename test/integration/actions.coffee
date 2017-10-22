@@ -39,7 +39,10 @@ showMap = showMap(map)
 
 { assertMonsterAt, assertNoOneAt, assertPlayerIsAt } = assertions(map, player)
 
-logic = new GameLogic map, controller, actions, entityFilter: (list) -> (e for e in list when !e.property("dead"))
+logic = new GameLogic map, controller,
+  actions: actions,
+  initiative: (list) -> (e for e in list when !e.property("dead")),
+  play: (entity, args) -> entity.property "play", args
 
 # #######
 # Tests #
@@ -63,7 +66,7 @@ describe "Action sequence", ->
 
   it "should run properly", ->
     #showMap()
-    logic.startTurn(showMap) #returns a Promise
+    logic.playTurn(showMap) #returns a Promise
 
   it "should not do anything during turn 0, everyone passes", ->
     assertPlayerIsAt 1, 1
@@ -75,7 +78,7 @@ describe "Action sequence", ->
     logic.turn.should.equal 1
 
   it "should run turn 1 properly", ->
-    logic.startTurn(showMap)
+    logic.playTurn(showMap)
 
   it "should have moved the player right", ->
     assertPlayerIsAt 2, 1
@@ -89,7 +92,7 @@ describe "Action sequence", ->
     # Seems to be working, will omit it from now on
 
   it "should run turn 2 properly", ->
-    logic.startTurn(showMap)
+    logic.playTurn(showMap)
 
   it "should have moved the player right", ->
     assertPlayerIsAt 3, 1
@@ -99,7 +102,7 @@ describe "Action sequence", ->
     assertNoOneAt 2, 1
 
   it "should fail to move on the third movement (can't go through monster)", ->
-    logic.startTurn(showMap)
+    logic.playTurn(showMap)
     assertPlayerIsAt 3, 1
     assertMonsterAt 4, 1
     assertMonsterAt 3, 6
@@ -107,7 +110,7 @@ describe "Action sequence", ->
     assertNoOneAt 2, 1
 
   it "should run turn 4 properly", ->
-    logic.startTurn(showMap)
+    logic.playTurn(showMap)
 
   it "should resolve attacks properly", ->
     monster = map.topLevelEntityAt(4, 1)
@@ -115,9 +118,9 @@ describe "Action sequence", ->
     player.property("health").should.equal 9
 
   it "should run turn 5, 6 and 7 properly", ->
-    logic.startTurn()
-    logic.startTurn()
-    logic.startTurn(showMap)
+    logic.playTurn()
+    logic.playTurn()
+    logic.playTurn(showMap)
 
   it "should now be turn 8", ->
     logic.turn.should.equal 8
@@ -130,7 +133,7 @@ describe "Action sequence", ->
     player.property("health").should.equal 6
 
   it "should play turn 8 properly", ->
-    logic.startTurn(showMap)
+    logic.playTurn(showMap)
 
   it "should have healed the player through the heal spell", ->
     player.property("health").should.equal 10

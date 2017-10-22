@@ -19,29 +19,22 @@ describe "GameLogic", ->
 
   afterEach ->
     controller.emit.reset?()
-    ["playTurn", "startTurn"].forEach (e) ->
-      logic[e].restore?()
 
-  it "should emit a NewTurn event at the start of a new turn", ->
-    logic.playTurn = sinon.spy()
-    logic.startTurn()
+  it "should emit a new_turn event at the start of a new turn", ->
+    logic.playTurn()
     sinon.assert.calledWith controller.emit, "NewTurn"
 
-  it "should call it's own playTurn() method once startTurn() is done", ->
-    logic.playTurn = sinon.spy()
-    # startTurn implicitely returns the promise used to call playTurn, we can then hook
-    # on to that to chain a new promise and return it for mocha to test when it's done
-    logic.startTurn().then ->
-      sinon.assert.calledOnce(logic.playTurn)
-
-  it "should increment the turn count on playTurn()", ->
-    turn = logic.turn
-    logic.startTurn = sinon.spy()
+  it "should emit a end_turn event at the end of a new turn", ->
     logic.playTurn()
-    logic.turn.should.equal turn + 1
+    sinon.assert.calledWith controller.emit, "NewTurn"
 
-  it "should call its callback again once playTurn() is done", ->
+  it "should increment the turn count at the end of playTurn()", ->
+    turn = logic.turn
+    logic.playTurn().then ->
+      logic.turn.should.equal turn + 1
+
+  it "should call its callback once playTurn() is done", ->
     callback = sinon.spy()
-    logic.playTurn(callback)
-    sinon.assert.calledOnce(callback)
+    logic.playTurn(-> callback(); Promise.resolve()).then ->
+      sinon.assert.calledOnce(callback)
 

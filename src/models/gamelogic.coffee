@@ -5,21 +5,67 @@
 
 # Handle the logic of the game. Distributes the actions and plays out the turns
 class GameLogic
-  constructor: (@map, @controller, @availableActions, @rules = {}) ->
+  constructor: (@map, @controller, @rules = {}) ->
     @turn = 0
-    @actions = []
-    @pause = false
 
-  # Interrupts the game after the end of the current turn
-  pause: -> @pause = true
+  playTurn: (callback) ->
+    @controller.emit "new_turn"
 
-  # Restart the game if paused
-  restart: ->
-    return unless @pause
-    @pause = false
-    @startTurn()
+    playBuilder = (entity, resolve) =>
+      play = (action, args...) =>
+        @resolve caller: entity, action: action, args: args, map: @map
+        resolve()
+      pos: { x: entity.x, y: entity.y }
+      map: @map.proxy()
+      play: play
+      move: (x, y) ->
+        play "move", x, y, entity.x, entity.y
+      pass: resolve
+
+    filter = @rules.initiative || (x) -> x
+    list = filter @map.playableEntities.slice()
+
+    @nextAction list, callback, playBuilder
+
+  nextAction: (list, callback, builder) ->
+    if list.length > 0
+      entity = list.shift()
+      new Promise (resolve, reject) =>
+        try
+          @rules.play(entity, builder(entity, resolve))
+        catch e
+          reject(e)
+      .catch (e) =>
+        @controller.emit "error", e
+      .then =>
+        @nextAction list, callback, builder
+
+    else
+      @controller.emit "end_turn", @turn
+      @turn++
+      if typeof callback is "function"
+        callback()
+      else
+        return Promise.resolve()
+
+  # Checks whether an action can be resolved,
+  # if so return the appropriate callback
+  resolve: (arg) ->
+    { caller, action, args } = arg
+    f = @rules.actions[action]
+    if f? and typeof f is "function"
+      c = caller
+      c.x = caller.x
+      c.y = caller.y
+      f.call(c, @map, args...)
+    else
+      throw Error "Action #{action} is not available"
 
 
+module.exports = GameLogic
+      
+
+###
   # Hands out the game handle to the controllable entities and wait for
   # them to return an action to proceed with the game
   # The 'callback' parameter is the function to play after the turn is complete
@@ -71,19 +117,5 @@ class GameLogic
       @turn++
       callback?()
 
+###
 
-  # Checks whether an action can be resolved,
-  # if so return the appropriate callback
-  resolve: (arg) ->
-    { caller, action, args } = arg
-    f = @availableActions[action]
-    if f? and typeof f is "function"
-      c = caller
-      c.x = caller.x
-      c.y = caller.y
-      f.call(c, @map, args...)
-    else
-      new Error "Action #{action} is not available"
-
-
-module.exports = GameLogic
