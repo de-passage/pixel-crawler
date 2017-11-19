@@ -51,7 +51,7 @@ showMap = showMap(map)
 
 { assertMonsterAt, assertNoOneAt, assertPlayerIsAt } = assertions(map, player)
 
-logic = new GameLogic map, controller,
+logic = new GameLogic map, controller.emit.bind(controller),
   actions: actions,
   initiative: (list) -> (e for e in list when !e.property("dead")),
   play: (entity, args) -> entity.property "play", args

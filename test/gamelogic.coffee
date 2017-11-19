@@ -15,7 +15,7 @@ describe "GameLogic", ->
   sinon.spy(controller, "emit")
 
   beforeEach ->
-    logic = new GameLogic map, controller
+    logic = new GameLogic map, controller.emit.bind(controller), play: (->), actions: [], initiative: (x) -> x
 
   afterEach ->
     controller.emit.reset?()

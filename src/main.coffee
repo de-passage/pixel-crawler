@@ -33,7 +33,7 @@ tileController = new TileController map, (tile) ->
   tile.property "color"
 
 
-logic = new GameLogic(map, game, actions)
+logic = new GameLogic(map, game, actions: actions, play: (->), initiative: ->)
 
 game.on "move", (e) ->
   [xd, yd, xs, ys] = e.args
@@ -44,7 +44,7 @@ game.on "error", (err, details) ->
   console.log "Error: ", err.message, details
       
 startTurn = ->
-  logic.startTurn startTurn
+  logic.playTurn startTurn
 
 $ ->
   ReactDOM.render (View tileController: tileController, inputController: inputController), $("#react-content")[0]

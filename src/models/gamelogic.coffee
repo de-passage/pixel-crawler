@@ -5,21 +5,24 @@
 
 # Handle the logic of the game. Distributes the actions and plays out the turns
 class GameLogic
-  constructor: (@map, @controller, @rules = {}) ->
+  constructor: (@map, @controller, @rules) ->
     @turn = 0
+    throw "Instantiation error (GameLogic): 'map' parameter require the following methods: proxy(), " unless typeof @map.proxy is "function" and Array.isArray(@map.playableEntities)
+    throw "Instantiation error (GameLogic): 'controller' parameter should be a function" unless typeof @controller is "function"
+    throw "Instantiation error (GameLogic): 'rules' parameter require the following methods: initiative(), play(), and an object 'actions'" unless typeof @rules.initiative is "function" and typeof @rules.play is "function" and typeof @rules.actions is "object"
 
   playTurn: (callback) ->
-    @controller.emit "new_turn", @turn
+    @controller "new_turn", @turn
 
     playBuilder = (entity, resolve, reject) =>
       played = null
       play = (action, args...) =>
         if played
-          return @controller.emit "error", new Error "An entity tried to act more than once (`#{action}` and `#{played}`)"
+          return @controller "error", new Error "An entity tried to act more than once (`#{action}` and `#{played}`)"
         else
           played = action
         @resolve caller: entity, action: action, args: args, map: @map
-        @controller.emit action, caller: entity, map: @map, args: args
+        @controller action, caller: entity, map: @map, args: args
         resolve()
       pos: { x: entity.x, y: entity.y }
       map: @map.proxy()
@@ -44,12 +47,12 @@ class GameLogic
           reject(e)
       .catch (e) =>
         try # Just ignore errors emitted by the controller in this case. The show must go on
-          @controller.emit "error", e
+          @controller "error", e
       .then =>
         @nextAction list, callback, builder
 
     else
-      @controller.emit "end_turn", @turn
+      @controller "end_turn", @turn
       @turn++
       if typeof callback is "function"
         callback()
